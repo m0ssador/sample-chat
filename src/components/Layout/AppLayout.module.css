@@ -1,0 +1,29 @@
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    overflow: hidden;
+  }
+}
+
+.theme-toggle-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--button-bg);
+  color: var(--text-color);
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 1000;
+  transition: background-color 0.3s ease;
+}
+
+.theme-toggle-button:hover {
+  background: var(--button-hover-bg);
+}

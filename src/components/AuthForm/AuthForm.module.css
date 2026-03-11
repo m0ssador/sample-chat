@@ -1,0 +1,72 @@
+.authContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.form {
+  width: 100%;
+  max-width: 400px;
+  padding: 24px;
+  border-radius: 8px;
+  background: var(--color-card);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--color-text);
+}
+
+.inputGroup {
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.radioGroup {
+  margin-bottom: 16px;
+}
+
+.radioLabel {
+  display: block;
+  margin: 8px 0;
+}
+
+.radioLabel input {
+  margin-right: 8px;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}

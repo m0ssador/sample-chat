@@ -1,0 +1,46 @@
+:root {
+  /* Основные цвета */
+  --color-bg: #ffffff; /* Фон страницы */
+  --color-text: #1a1a1a; /* Основной текст */
+  --color-sidebar: #f5f5f5; /* Фон боковой панели */
+  --color-border: #e0e0e0; /* Границы и разделители */
+
+  /* Цвета сообщений */
+  --color-user-message: #e3f2fd; /* Фон сообщений пользователя */
+  --color-assistant-message: #f8f9fa; /* Фон сообщений ассистента */
+
+  /* Акцентные и функциональные цвета */
+  --color-accent: #2196f3; /* Основной акцент (кнопки, выделения) */
+  --color-accent-hover: #1976d2; /* Акцент при наведении */
+  --color-error: #f44336; /* Ошибки */
+  --color-success: #4caf50; /* Успешные действия */
+  --color-warning: #ff9800; /* Предупреждения */
+
+  /* Элементы интерфейса */
+  --color-button-bg: var(--color-accent);
+  --color-button-text: white;
+  --color-input-bg: #fafafa;
+  --color-input-border: #ccc;
+
+  /* Тени */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  /* Радиусы скругления */
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  /* Отступы и размеры */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Шрифты */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-size-base: 14px;
+  --line-height-base: 1.4;
+}

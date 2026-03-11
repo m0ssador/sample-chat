@@ -1,0 +1,21 @@
+:root {
+  --background: #ffffff;
+  --text-color: #333333;
+  --border-color: #e0e0e0;
+  --button-bg: #f0f0f0;
+  --button-hover-bg: #e0e0e0;
+}
+
+[data-theme="dark"] {
+  --background: #1a1a1a;
+  --text-color: #f0f0f0;
+  --border-color: #404040;
+  --button-bg: #303030;
+  --button-hover-bg: #404040;
+}
+
+.App {
+  background-color: var(--background);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

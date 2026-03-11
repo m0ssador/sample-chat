@@ -1,0 +1,10 @@
+[data-theme="dark"] {
+  --color-bg: #ffffff;
+  --color-text: #222222;
+  --color-accent: #007bff;
+  --color-bg-dark: #121212;
+  --color-text-dark: #eeeeee;
+  --color-accent-dark: #2196f3;
+  --border-radius: 8px;
+  --padding-base: 16px;
+}

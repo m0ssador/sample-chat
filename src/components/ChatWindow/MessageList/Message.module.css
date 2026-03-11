@@ -1,0 +1,70 @@
+.message {
+  max-width: 80%;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  position: relative;
+}
+
+.user {
+  align-self: flex-end;
+  background: var(--color-user-message);
+  color: var(--color-text-on-user);
+}
+
+.assistant {
+  align-self: flex-start;
+  background: var(--color-assistant-message);
+  color: var(--color-text);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.sender {
+  font-weight: 500;
+}
+
+.timestamp {
+  color: var(--color-text-secondary);
+}
+
+.content {
+  line-height: 1.4;
+}
+
+.copyButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* Стили для markdown */
+.content p {
+  margin: 4px 0;
+}
+
+.content code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.content pre {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+}

@@ -7,10 +7,9 @@ interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   onSearch:(query: string) => void;
-  onSettingsOpen: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onSearch, onSettingsOpen }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onSearch }) => {
   return (
     <aside>
       <button onClick={onToggle}>
@@ -18,7 +17,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onSearch, onSetting
       </button>
       <NewChatButton />
       <SearchInput onSearch={onSearch} />
-      <ChatList onSettingsOpen={onSettingsOpen} />
+      <ChatList />
     </aside>
   );
 };

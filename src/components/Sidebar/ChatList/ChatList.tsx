@@ -3,11 +3,7 @@ import ChatItem from './ChatItem';
 import { mockChats } from '../../../mocks/data';
 import styles from './ChatList.module.css';
 
-interface ChatListProps {
-  onSettingsOpen: () => void;
-}
-
-const ChatList: React.FC<ChatListProps> = ({ onSettingsOpen }) => {
+const ChatList: React.FC = () => {
   return (
     <div className={styles.chatList}>
       {mockChats.map(chat => (

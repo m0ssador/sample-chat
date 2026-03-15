@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styles from './InputArea.module.css';
 
 const InputArea: React.FC = () => {
@@ -13,55 +13,49 @@ const InputArea: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    adjustHeight();
+  }, [value]);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      // Логика отправки
-      setValue('');
-    };
+      handleSend();
+    }
+  };
 
-    return (
-      <div className={styles.inputArea}>
-        <textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-            adjustHeight();
-          }}
-          onKeyDown={handleKeyDown}
-          placeholder="Введите сообщение..."
-          className={styles.textarea}
-        />
-        <div className={styles.actions}>
-          <button
-            className={styles.attachButton}
-            title="Прикрепить изображение"
-          >
-            📷
-          </button>
-          <button
-            className={styles.stopButton}
-            disabled
-            title="Остановить генерацию"
-          >
-            ⏹
-          </button>
-          <button
-            className={`${styles.sendButton} ${value ? styles.active : ''}`}
-            onClick={() => {
-              // Логика отправки сообщения
-              setValue('');
-              adjustHeight();
-            }}
-            disabled={!value}
-          >
-            Отправить
-          </button>
-        </div>
+  const handleSend = () => {
+    if (!value.trim()) return;
+    console.log('Отправляем сообщение:', value);
+    setValue('');
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setValue(e.target.value);
+  };
+
+  return (
+    <div className={styles.inputArea}>
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        placeholder="Введите сообщение..."
+        className={styles.textarea}
+      />
+      <div className={styles.actions}>
+        <button
+          className={`${styles.sendButton} ${value ? styles.active : ''}`}
+          onClick={handleSend}
+          disabled={!value}
+          type="button"
+        >
+          Отправить
+        </button>
       </div>
-    );
-  }
+    </div>
+  );
 };
 
 export default InputArea;

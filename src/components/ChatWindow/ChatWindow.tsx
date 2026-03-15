@@ -2,20 +2,17 @@ import React, { useState } from 'react';
 import MessageList from './MessageList/MessageList';
 import InputArea from './InputArea';
 import SettingsPanel from '../SettingsPanel/SettingsPanel';
-import type { MessageData } from '../../types/message';
+import type { MessageData } from '../../types/types';
 import styles from './ChatWindow.module.css';
 
-const mockMessages: MessageData[] = [
-  { id: 1, text: 'Привет! Как дела?', sender: 'user'},
-  { id: 2, text: 'Здравствуйте! Всё хорошо, чем могу помочь?', sender: 'assistant'}
-];
+import { mockMessages } from '../../mocks/data'
 
 interface ChatWindowProps {
   isSettingsOpen: boolean;
-  onCloseSettings: () => void;
+  onToggleSettings: () => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ isSettingsOpen, onCloseSettings }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ isSettingsOpen, onToggleSettings }) => {
   const [messages, setMessages] = useState<MessageData[]>(mockMessages);
   const [isTyping, setIsTyping] = useState(false);
 
@@ -23,7 +20,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ isSettingsOpen, onCloseSettings
     <div className={styles.chatWindow}>
       <div className={styles.header}>
         <h3>Обсуждение проекта</h3>
-        <button onClick={onCloseSettings} className={styles.settingsButton}>
+        <button onClick={onToggleSettings} className={styles.settingsButton}>
           ⚙️ Настройки
         </button>
       </div>
@@ -33,7 +30,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ isSettingsOpen, onCloseSettings
       
       <SettingsPanel
         isOpen={isSettingsOpen}
-        onClose={onCloseSettings}
+        onToggle={onToggleSettings}
       />
     </div>
   );

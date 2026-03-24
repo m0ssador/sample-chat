@@ -20,12 +20,3 @@
   cursor: pointer;
   color: var(--color-text);
 }
-
-.messageList {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}

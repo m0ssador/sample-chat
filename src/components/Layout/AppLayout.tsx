@@ -7,7 +7,6 @@ import styles from './AppLayout.module.css';
 const AppLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isSearching, setIsSearching] = useState(true);
 
   const handleToggleSettings = () => {
     setIsSettingsOpen(prev => !prev);
@@ -17,17 +16,12 @@ const AppLayout: React.FC = () => {
     setIsSidebarOpen(prev => !prev);
   };
 
-  // Обработчик для активации поиска
-  const handleSearch = () => {
-    setIsSearching(true);
-  };
-
   return (
     <div className={styles.layout}>
       <Sidebar
         isOpen={isSidebarOpen}
         onToggle={handleToggleSidebar}
-        onSearch={handleSearch}
+        onSearch={() => {}}
       />
       <ChatWindow
         isSettingsOpen={isSettingsOpen}

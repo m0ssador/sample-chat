@@ -5,6 +5,14 @@ export interface MessageData {
   timestamp: string;
 }
 
+/** Сообщение в окне чата (role / content — как в задании) */
+export interface ChatMessage {
+  id: number;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+}
+
 export interface Chat {
     id: number;
     name: string;

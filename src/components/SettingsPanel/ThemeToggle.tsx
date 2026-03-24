@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './ThemeToggle.module.css';
 
 const ThemeToggle: React.FC = () => {
-  const [isDark, setIsDark] = useState<boolean>(false);
+  const [isDark, setIsDark] = useState<boolean>(() => localStorage.getItem('app-theme') === 'dark');
 
-  const toggleTheme = () => {
-    const newIsDark = !isDark;
-    setIsDark(newIsDark);
-
-    if (newIsDark) {
+  useEffect(() => {
+    if (isDark) {
       document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('app-theme', 'dark');
     } else {
       document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('app-theme', 'light');
     }
+  }, [isDark]);
+
+  const toggleTheme = () => {
+    setIsDark((v) => !v);
   };
 
   return (
@@ -26,7 +29,7 @@ const ThemeToggle: React.FC = () => {
         <span className={styles.slider}></span>
       </label>
       <span className={styles.label}>
-        {isDark ? 'Тёмная тема' : 'Светлая тема'}
+        Тёмная тема
       </span>
     </div>
   );

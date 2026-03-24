@@ -10,7 +10,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ onLogin }) => {
   const [scope, setScope] = useState('GIGACHAT_API_PERS');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -21,14 +22,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ onLogin }) => {
       console.log('Авторизуемся с:', { credentials, scope });
       onLogin();
     } catch (err) {
-      console.log('❌ Произошла ошибка при входе');
+      console.error('❌ Произошла ошибка при входе', err);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className={styles.form} >
+    <div className={styles.form}>
       <form onSubmit={handleLogin}>
         <h2>Авторизация</h2>
         <div>
@@ -54,9 +55,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ onLogin }) => {
             </label>
           ))}
         </div>
-        <button 
+        <button
           type="submit"
-          onClick={handleLogin}
           disabled={isLoading}
         >
           {isLoading ? 'Вход...' : 'Войти'}

@@ -8,12 +8,3 @@
     overflow: hidden;
   }
 }
-
-.theme-toggle-button {
-  background: var(--button-bg);
-  color: var(--text-color);
-}
-
-.theme-toggle-button:hover {
-  background: var(--button-hover-bg);
-}

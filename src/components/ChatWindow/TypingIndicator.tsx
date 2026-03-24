@@ -9,10 +9,10 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({ isVisible = true }) =
   if (!isVisible) return null;
 
   return (
-    <div className={styles.indicator}>
-      <span className={styles.dot}></span>
-      <span className={styles.dot}></span>
-      <span className={styles.dot}></span>
+    <div className={styles.typingContainer}>
+      <span className={styles.typingDot}></span>
+      <span className={styles.typingDot}></span>
+      <span className={styles.typingDot}></span>
     </div>
   );
 };

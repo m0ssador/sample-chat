@@ -1,13 +1,15 @@
 .wrapper {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
   max-width: 80%;
   margin-bottom: 16px;
 }
 
 .wrap_user {
-  align-self: flex-end;
-  align-items: flex-end;
+  align-self: flex-start;
+  align-items: flex-start;
 }
 
 .wrap_assistant {
@@ -18,21 +20,19 @@
 .copyRow {
   display: flex;
   align-items: center;
-  margin-bottom: 0;
-  max-height: 0;
+  justify-content: flex-end;
+  width: 0;
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
   transition:
-    max-height 0.15s ease,
-    opacity 0.15s ease,
-    margin-bottom 0.15s ease;
+    width 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .wrapper:hover .copyRow,
 .wrapper:focus-within .copyRow {
-  max-height: 40px;
-  margin-bottom: 6px;
+  width: 32px;
   opacity: 1;
   pointer-events: auto;
 }
@@ -40,7 +40,8 @@
 .wrap_user .copyRow,
 .wrap_assistant .copyRow {
   justify-content: flex-end;
-  width: 100%;
+  flex-shrink: 0;
+  order: 2;
 }
 
 .copyButton {

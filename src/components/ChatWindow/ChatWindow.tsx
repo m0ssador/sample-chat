@@ -27,9 +27,14 @@ function formatNowTime(): string {
 interface ChatWindowProps {
   isSettingsOpen: boolean;
   onToggleSettings: () => void;
+  onToggleSidebar: () => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ isSettingsOpen, onToggleSettings }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({
+  isSettingsOpen,
+  onToggleSettings,
+  onToggleSidebar,
+}) => {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
   const nextIdRef = useRef(
@@ -94,7 +99,17 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ isSettingsOpen, onToggleSetting
   return (
     <div className={styles.chatWindow}>
       <div className={styles.header}>
-        <h3>Обсуждение проекта</h3>
+        <div className={styles.headerMain}>
+          <button
+            type="button"
+            className={styles.burgerButton}
+            onClick={onToggleSidebar}
+            aria-label="Открыть или закрыть меню чатов"
+          >
+            ☰
+          </button>
+          <h3>Обсуждение проекта</h3>
+        </div>
         <button type="button" onClick={onToggleSettings} className={styles.settingsButton}>
           ⚙️ Настройки
         </button>

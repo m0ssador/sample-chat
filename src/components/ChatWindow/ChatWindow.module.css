@@ -18,6 +18,38 @@
   flex-shrink: 0;
 }
 
+.headerMain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.burgerButton {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--color-border);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  touch-action: manipulation;
+}
+
+@media (max-width: 768px) {
+  .burgerButton {
+    display: inline-flex;
+  }
+}
+
 .settingsButton {
   background: none;
   border: 1px solid var(--color-border);
@@ -30,19 +62,20 @@
   touch-action: manipulation;
 }
 
-.header h3 {
+.headerMain h3 {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--color-text);
   min-width: 0;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 @media (max-width: 480px) {
-  .header h3 {
+  .headerMain h3 {
     font-size: 1rem;
   }
 }

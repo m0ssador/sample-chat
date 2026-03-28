@@ -6,23 +6,14 @@ import styles from './Sidebar.module.css';
 
 interface SidebarProps {
   isOpen: boolean;
-  onToggle: () => void;
   onSearch: (query: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onSearch }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onSearch }) => {
   return (
     <aside className={`${styles.sidebar} ${isOpen ? styles.mobileOpen : ''}`}>
       <div className={styles.header}>
-        <button
-          className={styles.burgerButton}
-          onClick={onToggle}
-          type="button"
-          aria-label="Открыть меню"
-        >
-          ☰
-        </button>
-        <NewChatButton />
+        <NewChatButton className={styles.newChatButton} />
       </div>
       <SearchInput onSearch={onSearch} />
       <ChatList />

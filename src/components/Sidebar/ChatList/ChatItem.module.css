@@ -8,18 +8,18 @@
 }
 
 .chatItem:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
 }
 
 .active {
-  background: rgba(79, 70, 229, 0.1);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
   border-left: 3px solid var(--color-primary);
 }
 
 .info {
   display: flex;
   flex-direction: column;
-  min-width: 0; /* Для корректного обрезания текста */
+  min-width: 0;
 }
 
 .title {
@@ -45,17 +45,26 @@
 .deleteButton {
   background: none;
   border: none;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1;
   cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 2px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .editButton:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--color-surface-hover);
+  color: var(--color-text);
 }
 
 .deleteButton:hover {
-  background: rgba(255, 0, 0, 0.1);
-  color: #d32f2f;
+  background: color-mix(in srgb, var(--color-error) 18%, transparent);
+  color: var(--color-error);
 }

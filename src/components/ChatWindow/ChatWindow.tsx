@@ -82,6 +82,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ isSettingsOpen, onToggleSetting
     }, delayMs);
   }, []);
 
+  const handleStop = useCallback(() => {
+    if (replyTimeoutRef.current) {
+      clearTimeout(replyTimeoutRef.current);
+      replyTimeoutRef.current = null;
+    }
+    setIsLoading(false);
+    awaitingAssistantRef.current = false;
+  }, []);
+
   return (
     <div className={styles.chatWindow}>
       <div className={styles.header}>
@@ -93,7 +102,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ isSettingsOpen, onToggleSetting
 
       <MessageList messages={messages} isLoading={isLoading} />
 
-      <InputArea onSend={handleSend} isLoading={isLoading} />
+      <InputArea onSend={handleSend} onStop={handleStop} isLoading={isLoading} />
 
       <SettingsPanel isOpen={isSettingsOpen} onToggle={onToggleSettings} />
     </div>

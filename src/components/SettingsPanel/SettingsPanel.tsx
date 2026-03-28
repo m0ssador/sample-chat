@@ -16,7 +16,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onToggle }) => {
         className={styles.panel}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2>Настройки</h2>
+        <h2 className={styles.panelTitle}>Настройки</h2>
 
         <ThemeToggle />
 

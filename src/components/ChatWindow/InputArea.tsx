@@ -1,39 +1,34 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import styles from './InputArea.module.css';
 
 interface InputAreaProps {
   onSend: (content: string) => void;
+  onStop: () => void;
   isLoading: boolean;
 }
 
-const InputArea: React.FC<InputAreaProps> = ({ onSend, isLoading }) => {
+const InputArea: React.FC<InputAreaProps> = ({ onSend, onStop, isLoading }) => {
   const [value, setValue] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const adjustHeight = () => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
-    }
+  const hasSendableText = value.trim().length > 0;
+  const sendDisabled = !hasSendableText || isLoading;
+
+  const submitMessage = () => {
+    const text = value.trim();
+    if (!text || isLoading) return;
+    onSend(text);
+    setValue('');
   };
 
-  useEffect(() => {
-    adjustHeight();
-  }, [value]);
-
-  const handleSend = () => {
-    const trimmed = value.trim();
-    if (!trimmed || isLoading) return;
-    onSend(trimmed);
-    setValue('');
-    adjustHeight();
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    submitMessage();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      submitMessage();
     }
   };
 
@@ -41,32 +36,31 @@ const InputArea: React.FC<InputAreaProps> = ({ onSend, isLoading }) => {
     setValue(e.target.value);
   };
 
-  const disableInput = isLoading;
-  const disableSend = !value.trim() || isLoading;
-
   return (
-    <div className={styles.inputArea}>
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        placeholder="Введите сообщение..."
-        className={styles.textarea}
-        disabled={disableInput}
-        rows={1}
-      />
-      <div className={styles.actions}>
-        <button
-          className={`${styles.sendButton} ${value.trim() ? styles.active : ''}`}
-          onClick={handleSend}
-          disabled={disableSend}
-          type="button"
-        >
-          Отправить
-        </button>
+    <form className={styles.inputArea} onSubmit={handleFormSubmit} noValidate>
+      <div className={styles.textareaGrow} data-replicated-value={value}>
+        <textarea
+          value={value}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Введите сообщение..."
+          className={styles.textarea}
+          disabled={isLoading}
+          rows={1}
+        />
       </div>
-    </div>
+      <div className={styles.actions}>
+        {isLoading ? (
+          <button className={styles.stopButton} type="button" onClick={onStop}>
+            Стоп
+          </button>
+        ) : (
+          <button className={styles.sendButton} type="submit" disabled={sendDisabled}>
+            Отправить
+          </button>
+        )}
+      </div>
+    </form>
   );
 };
 

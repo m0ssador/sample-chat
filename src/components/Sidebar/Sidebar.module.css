@@ -1,10 +1,14 @@
 .sidebar {
   width: 300px;
   height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
   background: var(--color-card);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 .mobileOpen {
@@ -24,18 +28,26 @@
   background: none;
   border: none;
   font-size: 20px;
+  line-height: 1;
   cursor: pointer;
   color: var(--color-text);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  touch-action: manipulation;
 }
 
 .newChatButton {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-on-primary);
   border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
+  padding: 10px 14px;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 500;
+  touch-action: manipulation;
 }
 
 .newChatButton:hover {
@@ -48,8 +60,11 @@
     position: fixed;
     top: 0;
     left: -300px;
-    width: 300px;
+    width: min(300px, 100vw);
+    max-width: 100vw;
     height: 100vh;
+    height: 100dvh;
+    padding-top: env(safe-area-inset-top);
     z-index: 1000;
     transition: transform 0.3s ease;
     transform: translateX(-100%);

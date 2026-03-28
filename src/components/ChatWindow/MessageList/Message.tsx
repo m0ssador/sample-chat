@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import styles from './Message.module.css';
 
@@ -30,27 +30,93 @@ function CopyIcon() {
   );
 }
 
+function CheckIcon() {
+  return (
+    <svg
+      className={styles.copyIcon}
+      width={16}
+      height={16}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  );
+}
+
 const Message: React.FC<MessageProps> = ({
   variant,
   content,
   timestamp,
   name,
 }) => {
-  const handleCopy = () => {
-    navigator.clipboard.writeText(content);
-  };
+  const [copied, setCopied] = useState(false);
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (copiedTimerRef.current) {
+        clearTimeout(copiedTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  const handleCopy = useCallback(async () => {
+    if (variant !== 'assistant') {
+      void navigator.clipboard.writeText(content);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      if (copiedTimerRef.current) {
+        clearTimeout(copiedTimerRef.current);
+      }
+      copiedTimerRef.current = setTimeout(() => {
+        setCopied(false);
+        copiedTimerRef.current = null;
+      }, 2000);
+    } catch {
+      setCopied(false);
+    }
+  }, [variant, content]);
+
+  const showCopyFeedback = variant === 'assistant' && copied;
+  const wrapperClass = [
+    styles.wrapper,
+    styles[`wrap_${variant}`],
+    showCopyFeedback ? styles.copyFeedback : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <div className={`${styles.wrapper} ${styles[`wrap_${variant}`]}`}>
+    <div className={wrapperClass}>
       <div className={styles.copyRow}>
         <button
           type="button"
           className={styles.copyButton}
           onClick={handleCopy}
-          aria-label="Копировать текст сообщения"
-          title="Копировать"
+          aria-label={
+            showCopyFeedback ? 'Текст скопирован в буфер обмена' : 'Копировать текст сообщения'
+          }
+          title={showCopyFeedback ? 'Скопировано' : 'Копировать'}
         >
-          <CopyIcon />
+          {showCopyFeedback ? (
+            <>
+              <CheckIcon />
+              <span className={styles.copiedLabel}>Скопировано</span>
+            </>
+          ) : (
+            <CopyIcon />
+          )}
         </button>
       </div>
       <div className={`${styles.message} ${styles[variant]}`}>

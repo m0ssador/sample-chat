@@ -3,7 +3,9 @@
   flex-direction: row;
   align-items: flex-start;
   gap: 8px;
-  max-width: 80%;
+  width: 100%;
+  max-width: min(100%, 80%);
+  box-sizing: border-box;
   margin-bottom: 16px;
 }
 
@@ -37,6 +39,16 @@
   pointer-events: auto;
 }
 
+.copyFeedback .copyRow,
+.copyFeedback:hover .copyRow,
+.copyFeedback:focus-within .copyRow {
+  width: auto;
+  min-width: 120px;
+  max-width: min(200px, 100%);
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .wrap_user .copyRow,
 .wrap_assistant .copyRow {
   justify-content: flex-end;
@@ -48,13 +60,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   padding: 6px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm, 4px);
+  border-radius: var(--radius-sm);
   background: var(--color-card);
   color: var(--color-text-secondary);
   cursor: pointer;
-  line-height: 0;
+  line-height: 1.2;
+  white-space: nowrap;
   transition:
     color 0.15s ease,
     background 0.15s ease,
@@ -67,8 +81,24 @@
   background: var(--color-input-bg);
 }
 
+.copyButton:active {
+  opacity: 0.9;
+}
+
 .copyIcon {
   display: block;
+  flex-shrink: 0;
+}
+
+.copiedLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-success);
+}
+
+.copyFeedback .copyButton {
+  border-color: var(--color-success);
+  color: var(--color-text);
 }
 
 .message {
@@ -78,6 +108,9 @@
   gap: 10px;
   align-items: flex-start;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .avatar {
@@ -127,6 +160,9 @@
   line-height: 1.4;
   min-width: 0;
   flex: 1;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* Стили для markdown */
@@ -135,15 +171,59 @@
 }
 
 .content code {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--color-code-bg);
   padding: 2px 4px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   font-family: monospace;
 }
 
 .content pre {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--color-code-bg);
   padding: 8px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   overflow-x: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Узкие экраны: сообщения на всю ширину колонки, копирование всегда доступно для тача */
+@media (max-width: 768px) {
+  .wrapper {
+    max-width: 100%;
+  }
+
+  .copyRow {
+    width: 44px;
+    min-width: 44px;
+    opacity: 1;
+    pointer-events: auto;
+    overflow: visible;
+  }
+
+  .wrapper:hover .copyRow,
+  .wrapper:focus-within .copyRow {
+    width: 44px;
+    min-width: 44px;
+  }
+
+  .copyFeedback .copyRow,
+  .copyFeedback:hover .copyRow,
+  .copyFeedback:focus-within .copyRow {
+    width: auto;
+    min-width: min(100%, 200px);
+    max-width: 100%;
+  }
+
+  .copyButton {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+    touch-action: manipulation;
+  }
+}
+
+@media (min-width: 769px) {
+  .copyButton {
+    touch-action: manipulation;
+  }
 }

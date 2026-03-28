@@ -1,4 +1,6 @@
-:root {
+/* Светлая тема: по умолчанию и при data-theme="light" на <html> */
+:root,
+html[data-theme='light'] {
   --color-bg: #ffffff;
   --color-card: #f8f9fb;
   --color-text: #1a1a1a;
@@ -12,9 +14,23 @@
 
   --color-primary: #2196f3;
   --color-primary-dark: #1976d2;
+  --color-on-primary: #ffffff;
   --color-input-bg: #ffffff;
+
+  --color-success: #2e7d32;
+  --color-error: #d32f2f;
+  --color-error-bg: #ffebee;
+  --color-on-error: #ffffff;
+
+  --color-overlay: rgb(0 0 0 / 0.5);
+  --color-shadow: rgb(0 0 0 / 0.1);
+  --color-code-bg: rgb(0 0 0 / 0.06);
+  --color-surface-hover: rgb(0 0 0 / 0.05);
 
   --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-size-base: 14px;
   --line-height-base: 1.4;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
 }

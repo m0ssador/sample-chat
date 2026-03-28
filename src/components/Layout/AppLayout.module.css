@@ -1,6 +1,14 @@
 .layout {
   display: flex;
   height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.layout > * {
+  min-width: 0;
 }
 
 @media (max-width: 768px) {

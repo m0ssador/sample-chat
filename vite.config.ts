@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import { mergeGigaChatEnv, isInsecureSslFlag } from './services/gigachat-proxy/env';
+import { mergeGigaChatEnv, isInsecureSslFlag } from './src/api/gigachat-proxy/env';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {

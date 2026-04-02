@@ -22,5 +22,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts", "services/gigachat-proxy/**/*.ts"]
+  "include": ["vite.config.ts", "src/api/gigachat-proxy/**/*.ts"]
 }

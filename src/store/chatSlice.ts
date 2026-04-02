@@ -30,7 +30,7 @@ export const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
-    setActiveChatId(state, action: PayloadAction<number>) {
+    setActiveChatId(state, action: PayloadAction<number | null>) {
       state.activeChatId = action.payload;
       state.error = null;
     },

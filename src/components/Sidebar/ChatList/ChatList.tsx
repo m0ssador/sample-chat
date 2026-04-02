@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ChatItem from './ChatItem';
 import RenameChatModal from '../RenameChatModal';
 import DeleteChatModal from '../DeleteChatModal';
 import styles from './ChatList.module.css';
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import {
-  setActiveChatId,
-  renameChat,
-  deleteChat,
-} from '../../../store/chatSlice';
+import { useAppDispatch, useAppSelector, useAppStore } from '../../../store/hooks';
+import { renameChat, deleteChat } from '../../../store/chatSlice';
 import {
   selectActiveChatId,
   selectChats,
@@ -16,12 +13,19 @@ import {
   selectSearchQuery,
 } from '../../../store/selectors';
 
-const ChatList: React.FC = () => {
+interface ChatListProps {
+  onNavigate?: () => void;
+}
+
+const ChatList: React.FC<ChatListProps> = ({ onNavigate }) => {
   const chats = useAppSelector(selectChats);
   const filtered = useAppSelector(selectFilteredChats);
   const searchQuery = useAppSelector(selectSearchQuery);
   const activeChatId = useAppSelector(selectActiveChatId);
   const dispatch = useAppDispatch();
+  const store = useAppStore();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [renameTarget, setRenameTarget] = useState<{
     id: number;
@@ -31,6 +35,27 @@ const ChatList: React.FC = () => {
     id: number;
     name: string;
   } | null>(null);
+
+  const handleSelectChat = (id: number) => {
+    navigate(`/chat/${id}`);
+    onNavigate?.();
+  };
+
+  const handleConfirmDelete = (deletedId: number) => {
+    const onDeletedChatPage = location.pathname === `/chat/${deletedId}`;
+    dispatch(deleteChat(deletedId));
+    if (onDeletedChatPage) {
+      const { chats: nextChats, activeChatId: nextActive } = store.getState().chat;
+      if (nextChats.length === 0) {
+        navigate('/', { replace: true });
+      } else if (nextActive != null) {
+        navigate(`/chat/${nextActive}`, { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
+    }
+    onNavigate?.();
+  };
 
   if (chats.length === 0) {
     return (
@@ -56,7 +81,7 @@ const ChatList: React.FC = () => {
             key={chat.id}
             chat={chat}
             isActive={chat.id === activeChatId}
-            onSelect={() => dispatch(setActiveChatId(chat.id))}
+            onSelect={() => handleSelectChat(chat.id)}
             onEdit={() => setRenameTarget({ id: chat.id, name: chat.name })}
             onDelete={() =>
               setDeleteTarget({ id: chat.id, name: chat.name })
@@ -72,7 +97,7 @@ const ChatList: React.FC = () => {
       <DeleteChatModal
         target={deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={(id) => dispatch(deleteChat(id))}
+        onConfirm={handleConfirmDelete}
       />
     </>
   );

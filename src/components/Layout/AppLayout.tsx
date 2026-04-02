@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar/Sidebar';
-import ChatWindow from '../ChatWindow/ChatWindow';
 
 import styles from './AppLayout.module.css';
+
+export interface AppLayoutOutletContext {
+  onToggleSidebar: () => void;
+}
 
 function getInitialSidebarOpen(): boolean {
   if (typeof window === 'undefined') return true;
@@ -11,11 +15,6 @@ function getInitialSidebarOpen(): boolean {
 
 const AppLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(getInitialSidebarOpen);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-  const handleToggleSettings = () => {
-    setIsSettingsOpen(prev => !prev);
-  };
 
   const handleToggleSidebar = () => {
     setIsSidebarOpen(prev => !prev);
@@ -31,11 +30,11 @@ const AppLayout: React.FC = () => {
         tabIndex={isSidebarOpen ? 0 : -1}
         onClick={() => setIsSidebarOpen(false)}
       />
-      <Sidebar isOpen={isSidebarOpen} />
-      <ChatWindow
-        isSettingsOpen={isSettingsOpen}
-        onToggleSettings={handleToggleSettings}
-        onToggleSidebar={handleToggleSidebar}
+      <Sidebar isOpen={isSidebarOpen} onNavigate={() => setIsSidebarOpen(false)} />
+      <Outlet
+        context={
+          { onToggleSidebar: handleToggleSidebar } satisfies AppLayoutOutletContext
+        }
       />
     </div>
   );

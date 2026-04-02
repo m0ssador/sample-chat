@@ -31,7 +31,7 @@ export interface ChatState {
  * Соответствуют `PayloadAction` из `createSlice`.
  */
 export type ChatAction =
-  | PayloadAction<number, 'chat/setActiveChatId'>
+  | PayloadAction<number | null, 'chat/setActiveChatId'>
   | PayloadAction<string | null, 'chat/setError'>
   | PayloadAction<void, 'chat/clearError'>
   | PayloadAction<boolean, 'chat/setLoading'>

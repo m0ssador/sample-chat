@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import MessageList from './MessageList/MessageList';
 import InputArea from './InputArea';
 import SettingsPanel from '../SettingsPanel/SettingsPanel';
@@ -21,6 +22,8 @@ import {
   selectNextMessageId,
 } from '../../store/selectors';
 import type { Message } from '../../store/chatTypes';
+import type { AppLayoutOutletContext } from '../Layout/AppLayout';
+import { useChatRouteSync } from '../../hooks/useChatRouteSync';
 
 const MOCK_ASSISTANT_TEXT =
   'Это автоматический ответ. Уточните, пожалуйста, детали — и я помогу точнее.';
@@ -32,17 +35,12 @@ function formatNowTime(): string {
   });
 }
 
-interface ChatWindowProps {
-  isSettingsOpen: boolean;
-  onToggleSettings: () => void;
-  onToggleSidebar: () => void;
-}
+const ChatWindow: React.FC = () => {
+  useChatRouteSync();
 
-const ChatWindow: React.FC<ChatWindowProps> = ({
-  isSettingsOpen,
-  onToggleSettings,
-  onToggleSidebar,
-}) => {
+  const { onToggleSidebar } = useOutletContext<AppLayoutOutletContext>();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   const dispatch = useAppDispatch();
   const store = useAppStore();
   const messages = useAppSelector(selectActiveChatMessages);
@@ -146,7 +144,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           </button>
           <h3 title={title}>{title}</h3>
         </div>
-        <button type="button" onClick={onToggleSettings} className={styles.settingsButton}>
+        <button
+          type="button"
+          onClick={() => setIsSettingsOpen((o) => !o)}
+          className={styles.settingsButton}
+        >
           ⚙️ Настройки
         </button>
       </div>
@@ -164,7 +166,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
       <InputArea onSend={handleSend} onStop={handleStop} isLoading={isLoading} />
 
-      <SettingsPanel isOpen={isSettingsOpen} onToggle={onToggleSettings} />
+      <SettingsPanel isOpen={isSettingsOpen} onToggle={() => setIsSettingsOpen((o) => !o)} />
     </div>
   );
 };

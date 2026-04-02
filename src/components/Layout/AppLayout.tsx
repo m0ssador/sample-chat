@@ -31,7 +31,7 @@ const AppLayout: React.FC = () => {
         tabIndex={isSidebarOpen ? 0 : -1}
         onClick={() => setIsSidebarOpen(false)}
       />
-      <Sidebar isOpen={isSidebarOpen} onSearch={() => {}} />
+      <Sidebar isOpen={isSidebarOpen} />
       <ChatWindow
         isSettingsOpen={isSettingsOpen}
         onToggleSettings={handleToggleSettings}

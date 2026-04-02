@@ -1,18 +1,26 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import MessageList from './MessageList/MessageList';
 import InputArea from './InputArea';
 import SettingsPanel from '../SettingsPanel/SettingsPanel';
-import type { ChatMessage } from '../../types/types';
+import { ErrorMessage } from '../ErrorMessage/ErrorMessage';
 import styles from './ChatWindow.module.css';
-
-import { mockMessages } from '../../mocks/data';
-
-const initialMessages: ChatMessage[] = mockMessages.map((m) => ({
-  id: m.id,
-  role: m.sender,
-  content: m.text,
-  timestamp: m.timestamp,
-}));
+import { useAppDispatch, useAppSelector, useAppStore } from '../../store/hooks';
+import {
+  appendAssistantMessage,
+  appendUserMessage,
+  clearError,
+  setError,
+  setLoading,
+  stopLoading,
+} from '../../store/chatSlice';
+import {
+  selectActiveChat,
+  selectActiveChatMessages,
+  selectChatError,
+  selectChatLoading,
+  selectNextMessageId,
+} from '../../store/selectors';
+import type { Message } from '../../store/chatTypes';
 
 const MOCK_ASSISTANT_TEXT =
   'Это автоматический ответ. Уточните, пожалуйста, детали — и я помогу точнее.';
@@ -35,11 +43,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   onToggleSettings,
   onToggleSidebar,
 }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
-  const [isLoading, setIsLoading] = useState(false);
-  const nextIdRef = useRef(
-    initialMessages.reduce((max, m) => Math.max(max, m.id), 0) + 1,
-  );
+  const dispatch = useAppDispatch();
+  const store = useAppStore();
+  const messages = useAppSelector(selectActiveChatMessages);
+  const activeChat = useAppSelector(selectActiveChat);
+  const isLoading = useAppSelector(selectChatLoading);
+  const error = useAppSelector(selectChatError);
+
   const replyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const awaitingAssistantRef = useRef(false);
 
@@ -52,49 +62,75 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     [],
   );
 
-  const handleSend = useCallback((content: string) => {
-    const trimmed = content.trim();
-    if (!trimmed || awaitingAssistantRef.current) return;
+  const handleSend = useCallback(
+    (content: string) => {
+      const trimmed = content.trim();
+      const chatId = activeChat?.id;
+      if (!trimmed || awaitingAssistantRef.current || chatId == null) {
+        if (chatId == null) {
+          dispatch(setError('Выберите чат в списке слева'));
+        }
+        return;
+      }
 
-    awaitingAssistantRef.current = true;
+      dispatch(clearError());
+      awaitingAssistantRef.current = true;
 
-    const userMessage: ChatMessage = {
-      id: nextIdRef.current++,
-      role: 'user',
-      content: trimmed,
-      timestamp: formatNowTime(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setIsLoading(true);
-
-    if (replyTimeoutRef.current) {
-      clearTimeout(replyTimeoutRef.current);
-    }
-
-    const delayMs = 3000 + Math.random() * 1000;
-    replyTimeoutRef.current = setTimeout(() => {
-      replyTimeoutRef.current = null;
-      const assistantMessage: ChatMessage = {
-        id: nextIdRef.current++,
-        role: 'assistant',
-        content: MOCK_ASSISTANT_TEXT,
+      const userMessage: Message = {
+        id: selectNextMessageId(store.getState()),
+        role: 'user',
+        content: trimmed,
         timestamp: formatNowTime(),
       };
-      setMessages((prev) => [...prev, assistantMessage]);
-      setIsLoading(false);
-      awaitingAssistantRef.current = false;
-    }, delayMs);
-  }, []);
+
+      const nowLabel = `Сегодня, ${formatNowTime()}`;
+
+      dispatch(
+        appendUserMessage({
+          chatId,
+          message: userMessage,
+          lastMessageDate: nowLabel,
+        }),
+      );
+      dispatch(setLoading(true));
+
+      if (replyTimeoutRef.current) {
+        clearTimeout(replyTimeoutRef.current);
+      }
+
+      const delayMs = 3000 + Math.random() * 1000;
+      replyTimeoutRef.current = setTimeout(() => {
+        replyTimeoutRef.current = null;
+        const assistantMessage: Message = {
+          id: selectNextMessageId(store.getState()),
+          role: 'assistant',
+          content: MOCK_ASSISTANT_TEXT,
+          timestamp: formatNowTime(),
+        };
+        dispatch(
+          appendAssistantMessage({
+            chatId,
+            message: assistantMessage,
+            lastMessageDate: nowLabel,
+          }),
+        );
+        dispatch(stopLoading());
+        awaitingAssistantRef.current = false;
+      }, delayMs);
+    },
+    [activeChat?.id, dispatch, store],
+  );
 
   const handleStop = useCallback(() => {
     if (replyTimeoutRef.current) {
       clearTimeout(replyTimeoutRef.current);
       replyTimeoutRef.current = null;
     }
-    setIsLoading(false);
+    dispatch(stopLoading());
     awaitingAssistantRef.current = false;
-  }, []);
+  }, [dispatch]);
+
+  const title = activeChat?.name ?? 'Чат';
 
   return (
     <div className={styles.chatWindow}>
@@ -108,12 +144,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           >
             ☰
           </button>
-          <h3>Обсуждение проекта</h3>
+          <h3 title={title}>{title}</h3>
         </div>
         <button type="button" onClick={onToggleSettings} className={styles.settingsButton}>
           ⚙️ Настройки
         </button>
       </div>
+
+      {error ? (
+        <div className={styles.errorBanner}>
+          <ErrorMessage message={error} />
+          <button type="button" className={styles.errorDismiss} onClick={() => dispatch(clearError())}>
+            Закрыть
+          </button>
+        </div>
+      ) : null}
 
       <MessageList messages={messages} isLoading={isLoading} />
 

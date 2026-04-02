@@ -1,6 +1,14 @@
-import type { Chat, MessageData } from '../types/types';
+import type { MessageData } from '../types/types';
 
-export const mockChats: Chat[] = [
+/** Сырые мок-данные (текст/sender); в сторе превращаются в `Message` с role/content */
+export interface MockChat {
+  id: number;
+  name: string;
+  lastMessageDate: string;
+  messages: MessageData[];
+}
+
+export const mockChats: MockChat[] = [
   {
     id: 1,
     name: 'Обсуждение проекта GigaChat',
@@ -71,4 +79,4 @@ export const mockChats: Chat[] = [
   }
 ];
 
-export const mockMessages: MessageData[] = mockChats[0].messages;
+export const mockMessages: MessageData[] = mockChats[0]?.messages ?? [];

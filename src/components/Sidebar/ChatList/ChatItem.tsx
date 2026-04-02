@@ -1,19 +1,36 @@
 import React, { useState } from 'react';
-import type { Chat } from '../../../types/types';
+import type { Chat } from '../../../store/chatTypes';
 import styles from './ChatItem.module.css';
 
 interface ChatItemProps {
   chat: Chat;
+  isActive: boolean;
+  onSelect: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-const ChatItem: React.FC<ChatItemProps> = ({ chat, onEdit, onDelete }) => {
+const ChatItem: React.FC<ChatItemProps> = ({
+  chat,
+  isActive,
+  onSelect,
+  onEdit,
+  onDelete,
+}) => {
   const [showActions, setShowActions] = useState(false);
 
   return (
     <div
-      className={`${styles.chatItem}`}
+      role="button"
+      tabIndex={0}
+      className={`${styles.chatItem} ${isActive ? styles.active : ''}`}
+      onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
@@ -25,10 +42,26 @@ const ChatItem: React.FC<ChatItemProps> = ({ chat, onEdit, onDelete }) => {
       </div>
       {showActions && (
         <div className={styles.actions}>
-          <button onClick={onEdit} className={styles.editButton}>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className={styles.editButton}
+            aria-label={`Переименовать чат «${chat.name}»`}
+          >
             ✏️
           </button>
-          <button onClick={onDelete} className={styles.deleteButton}>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className={styles.deleteButton}
+            aria-label={`Удалить чат «${chat.name}»`}
+          >
             🗑️
           </button>
         </div>

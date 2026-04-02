@@ -5,20 +5,8 @@ export interface MessageData {
   timestamp: string;
 }
 
-/** Сообщение в окне чата (role / content — как в задании) */
-export interface ChatMessage {
-  id: number;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
-}
-
-export interface Chat {
-    id: number;
-    name: string;
-    lastMessageDate: string;
-    messages: MessageData[]
-}
+/** Алиас для UI: то же, что `Message` в глобальном сторе */
+export type { Message as ChatMessage, Message, Chat, ChatState, ChatAction } from '../store/chatTypes';
 
 export interface Settings {
   model: string;

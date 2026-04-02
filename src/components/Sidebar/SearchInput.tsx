@@ -1,28 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { setSearchQuery } from '../../store/chatSlice';
+import { selectSearchQuery } from '../../store/selectors';
 import styles from './SearchInput.module.css';
 
-interface SearchInputProps {
-  onSearch: (query: string) => void;
-}
-
-const SearchInput: React.FC<SearchInputProps> = ({ onSearch }) => {
-  const [query, setQuery] = useState('');
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuery = e.target.value;
-    setQuery(newQuery);
-    onSearch(newQuery);
-  };
+const SearchInput: React.FC = () => {
+  const query = useAppSelector(selectSearchQuery);
+  const dispatch = useAppDispatch();
 
   return (
-    <div className={styles.searchInput}>
+    <div className={styles.searchContainer}>
       <input
-        type="text"
+        type="search"
+        className={styles.searchInput}
         placeholder="Поиск по чатам..."
         value={query}
-        onChange={handleChange}
+        onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+        aria-label="Поиск по названию чата и последнему сообщению"
       />
-      <span>🔍</span>
     </div>
   );
 };

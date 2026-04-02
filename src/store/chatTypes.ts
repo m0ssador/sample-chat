@@ -47,4 +47,8 @@ export type ChatAction =
   | PayloadAction<string, 'chat/setSearchQuery'>
   | PayloadAction<void, 'chat/addChat'>
   | PayloadAction<number, 'chat/deleteChat'>
-  | PayloadAction<{ id: number; name: string }, 'chat/renameChat'>;
+  | PayloadAction<{ id: number; name: string }, 'chat/renameChat'>
+  | PayloadAction<
+      { chatId: number; messageId: number; content: string },
+      'chat/updateAssistantMessageContent'
+    >;

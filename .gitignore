@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Секреты GigaChat и прочие локальные переменные (не коммитить)
+.env
+.env.*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

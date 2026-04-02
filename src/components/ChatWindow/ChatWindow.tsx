@@ -13,6 +13,7 @@ import {
   setError,
   setLoading,
   stopLoading,
+  updateAssistantMessageContent,
 } from '../../store/chatSlice';
 import {
   selectActiveChat,
@@ -24,9 +25,11 @@ import {
 import type { Message } from '../../store/chatTypes';
 import type { AppLayoutOutletContext } from '../Layout/AppLayout';
 import { useChatRouteSync } from '../../hooks/useChatRouteSync';
-
-const MOCK_ASSISTANT_TEXT =
-  'Это автоматический ответ. Уточните, пожалуйста, детали — и я помогу точнее.';
+import {
+  messagesToGigaChatPayload,
+  postGigaChatComplete,
+  postGigaChatStream,
+} from '../../services/gigachatClient';
 
 function formatNowTime(): string {
   return new Date().toLocaleTimeString('ru-RU', {
@@ -48,14 +51,12 @@ const ChatWindow: React.FC = () => {
   const isLoading = useAppSelector(selectChatLoading);
   const error = useAppSelector(selectChatError);
 
-  const replyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
   const awaitingAssistantRef = useRef(false);
 
   useEffect(
     () => () => {
-      if (replyTimeoutRef.current) {
-        clearTimeout(replyTimeoutRef.current);
-      }
+      abortRef.current?.abort();
     },
     [],
   );
@@ -92,38 +93,108 @@ const ChatWindow: React.FC = () => {
       );
       dispatch(setLoading(true));
 
-      if (replyTimeoutRef.current) {
-        clearTimeout(replyTimeoutRef.current);
-      }
+      const assistantId = selectNextMessageId(store.getState());
+      dispatch(
+        appendAssistantMessage({
+          chatId,
+          message: {
+            id: assistantId,
+            role: 'assistant',
+            content: '',
+            timestamp: formatNowTime(),
+          },
+          lastMessageDate: nowLabel,
+        }),
+      );
 
-      const delayMs = 3000 + Math.random() * 1000;
-      replyTimeoutRef.current = setTimeout(() => {
-        replyTimeoutRef.current = null;
-        const assistantMessage: Message = {
-          id: selectNextMessageId(store.getState()),
-          role: 'assistant',
-          content: MOCK_ASSISTANT_TEXT,
-          timestamp: formatNowTime(),
-        };
-        dispatch(
-          appendAssistantMessage({
-            chatId,
-            message: assistantMessage,
-            lastMessageDate: nowLabel,
-          }),
-        );
-        dispatch(stopLoading());
-        awaitingAssistantRef.current = false;
-      }, delayMs);
+      const ac = new AbortController();
+      abortRef.current = ac;
+
+      const chatAfter = store.getState().chat.chats.find((c) => c.id === chatId);
+      const apiMessages = messagesToGigaChatPayload(chatAfter?.messages ?? []);
+
+      let acc = '';
+
+      const run = async () => {
+        try {
+          await postGigaChatStream(apiMessages, {
+            signal: ac.signal,
+            onDelta: (piece) => {
+              acc += piece;
+              dispatch(
+                updateAssistantMessageContent({
+                  chatId,
+                  messageId: assistantId,
+                  content: acc,
+                }),
+              );
+            },
+          });
+
+          if (acc.trim() === '') {
+            const full = await postGigaChatComplete(apiMessages, {
+              signal: ac.signal,
+            });
+            dispatch(
+              updateAssistantMessageContent({
+                chatId,
+                messageId: assistantId,
+                content: full,
+              }),
+            );
+          }
+        } catch (e) {
+          if (ac.signal.aborted) {
+            return;
+          }
+
+          if (acc.trim() === '') {
+            try {
+              const full = await postGigaChatComplete(apiMessages, {
+                signal: ac.signal,
+              });
+              dispatch(
+                updateAssistantMessageContent({
+                  chatId,
+                  messageId: assistantId,
+                  content: full,
+                }),
+              );
+            } catch (e2) {
+              const msg =
+                e2 instanceof Error ? e2.message : 'Неизвестная ошибка';
+              dispatch(
+                updateAssistantMessageContent({
+                  chatId,
+                  messageId: assistantId,
+                  content: `Не удалось получить ответ: ${msg}`,
+                }),
+              );
+              dispatch(setError(msg));
+            }
+          } else {
+            const msg = e instanceof Error ? e.message : 'Ошибка потока';
+            dispatch(
+              setError(
+                `Ответ получен не полностью (${msg}). Ниже — уже пришедший текст.`,
+              ),
+            );
+          }
+        } finally {
+          abortRef.current = null;
+          dispatch(stopLoading());
+          awaitingAssistantRef.current = false;
+        }
+      };
+
+      void run();
     },
     [activeChat?.id, dispatch, store],
   );
 
   const handleStop = useCallback(() => {
-    if (replyTimeoutRef.current) {
-      clearTimeout(replyTimeoutRef.current);
-      replyTimeoutRef.current = null;
-    }
+    abortRef.current?.abort();
+    abortRef.current = null;
     dispatch(stopLoading());
     awaitingAssistantRef.current = false;
   }, [dispatch]);

@@ -107,6 +107,16 @@ export function persistChatState(state: ChatState): void {
   }
 }
 
+const STREAM_PERSIST_DEBOUNCE_MS = 400;
+let streamPersistTimer: ReturnType<typeof setTimeout> | null = null;
+
+function clearStreamPersistTimer(): void {
+  if (streamPersistTimer) {
+    clearTimeout(streamPersistTimer);
+    streamPersistTimer = null;
+  }
+}
+
 export const chatPersistenceMiddleware: Middleware<
   object,
   { chat: ChatState }
@@ -114,17 +124,32 @@ export const chatPersistenceMiddleware: Middleware<
   const result = next(action);
 
   if (
-    typeof action === 'object' &&
-    action !== null &&
-    'type' in action &&
-    typeof (action as { type: unknown }).type === 'string' &&
-    (action as { type: string }).type.startsWith('chat/')
+    typeof action !== 'object' ||
+    action === null ||
+    !('type' in action) ||
+    typeof (action as { type: unknown }).type !== 'string'
   ) {
-    try {
+    return result;
+  }
+
+  const actionType = (action as { type: string }).type;
+  if (!actionType.startsWith('chat/')) {
+    return result;
+  }
+
+  try {
+    if (actionType === 'chat/updateAssistantMessageContent') {
+      clearStreamPersistTimer();
+      streamPersistTimer = setTimeout(() => {
+        streamPersistTimer = null;
+        persistChatState(store.getState().chat);
+      }, STREAM_PERSIST_DEBOUNCE_MS);
+    } else {
+      clearStreamPersistTimer();
       persistChatState(store.getState().chat);
-    } catch {
-      /* на случай нестандартного getState */
     }
+  } catch {
+    /* на случай нестандартного getState */
   }
 
   return result;

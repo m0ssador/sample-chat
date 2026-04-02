@@ -1,6 +1,10 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { Chat, ChatState, Message } from './chatTypes';
 import { mockChats } from '../mocks/data';
+import {
+  isDefaultNewChatName,
+  titleFromFirstUserMessage,
+} from './chatTitleUtils';
 
 function hydrateChatsFromMocks(): Chat[] {
   return mockChats.map((c) => ({
@@ -62,9 +66,14 @@ export const chatSlice = createSlice({
       const { chatId, message, lastMessageDate } = action.payload;
       const chat = state.chats.find((c) => c.id === chatId);
       if (!chat) return;
+      const isFirstMessage = chat.messages.length === 0;
       chat.messages.push(message);
       if (lastMessageDate !== undefined) {
         chat.lastMessageDate = lastMessageDate;
+      }
+      if (isFirstMessage && isDefaultNewChatName(chat.name)) {
+        const fallback = `Новый чат ${chat.id}`;
+        chat.name = titleFromFirstUserMessage(message.content, fallback);
       }
     },
 
@@ -83,6 +92,22 @@ export const chatSlice = createSlice({
       if (lastMessageDate !== undefined) {
         chat.lastMessageDate = lastMessageDate;
       }
+    },
+
+    updateAssistantMessageContent(
+      state,
+      action: PayloadAction<{
+        chatId: number;
+        messageId: number;
+        content: string;
+      }>,
+    ) {
+      const { chatId, messageId, content } = action.payload;
+      const chat = state.chats.find((c) => c.id === chatId);
+      if (!chat) return;
+      const msg = chat.messages.find((m) => m.id === messageId);
+      if (!msg || msg.role !== 'assistant') return;
+      msg.content = content;
     },
 
     setSearchQuery(state, action: PayloadAction<string>) {
@@ -133,6 +158,7 @@ export const {
   stopLoading,
   appendUserMessage,
   appendAssistantMessage,
+  updateAssistantMessageContent,
   setSearchQuery,
   addChat,
   deleteChat,

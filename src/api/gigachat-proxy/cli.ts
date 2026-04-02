@@ -15,7 +15,7 @@ if (isInsecureSslFlag(env.GIGACHAT_INSECURE_SSL)) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 }
 
-const port = Number(env.GIGACHAT_PROXY_PORT || 8000);
+const port = Number(env.GIGACHAT_PROXY_PORT || 8787);
 const middleware = createGigaChatProxyMiddleware(env);
 
 const server = createServer((req, res) => {

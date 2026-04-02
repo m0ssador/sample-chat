@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
+import AssistantMarkdown from './AssistantMarkdown';
 import styles from './Message.module.css';
 
 export interface MessageProps {
@@ -126,7 +126,11 @@ const Message: React.FC<MessageProps> = ({
             <span className={styles.sender}>{name}</span>
             <span className={styles.timestamp}>{timestamp}</span>
           </div>
-          <ReactMarkdown>{content}</ReactMarkdown>
+          {variant === 'assistant' ? (
+            <AssistantMarkdown content={content} />
+          ) : (
+            <div className={styles.userPlain}>{content}</div>
+          )}
         </div>
       </div>
     </div>

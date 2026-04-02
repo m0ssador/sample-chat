@@ -165,25 +165,125 @@
   word-break: break-word;
 }
 
-/* Стили для markdown */
-.content p {
-  margin: 4px 0;
+.userPlain {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-.content code {
-  background: var(--color-code-bg);
-  padding: 2px 4px;
-  border-radius: var(--radius-sm);
-  font-family: monospace;
+.markdown {
+  min-width: 0;
+  overflow-x: auto;
 }
 
-.content pre {
+.markdown :global(p) {
+  margin: 6px 0;
+}
+
+.markdown :global(p:first-child) {
+  margin-top: 0;
+}
+
+.markdown :global(p:last-child) {
+  margin-bottom: 0;
+}
+
+.markdown :global(ul),
+.markdown :global(ol) {
+  margin: 8px 0;
+  padding-left: 1.4em;
+}
+
+.markdown :global(li) {
+  margin: 2px 0;
+}
+
+.markdown :global(h1) {
+  margin: 12px 0 6px;
+  font-size: 1.35em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.markdown :global(h2) {
+  margin: 10px 0 6px;
+  font-size: 1.2em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.markdown :global(h3) {
+  margin: 8px 0 4px;
+  font-size: 1.08em;
+  font-weight: 600;
+}
+
+.markdown :global(blockquote) {
+  margin: 8px 0;
+  padding: 4px 0 4px 12px;
+  border-left: 3px solid var(--color-primary);
+  color: var(--color-text-secondary);
+}
+
+.markdown :global(hr) {
+  margin: 12px 0;
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.markdown :global(a) {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown :global(table) {
+  width: max-content;
+  max-width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.markdown :global(th),
+.markdown :global(td) {
+  border: 1px solid var(--color-border);
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown :global(th) {
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+  font-weight: 600;
+}
+
+.inlineCode {
   background: var(--color-code-bg);
-  padding: 8px;
+  padding: 2px 5px;
   border-radius: var(--radius-sm);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.92em;
+}
+
+.codeBlock {
+  margin: 10px 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
   overflow-x: auto;
   max-width: 100%;
   box-sizing: border-box;
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-border);
+}
+
+.codeBlock code {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.45;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
 }
 
 /* Узкие экраны: сообщения на всю ширину колонки, копирование всегда доступно для тача */

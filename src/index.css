@@ -1,5 +1,6 @@
 @import './styles/variables.css';
 @import './styles/themes.css';
+@import 'prismjs/themes/prism-tomorrow.min.css';
 
 *,
 *::before,

@@ -14,7 +14,7 @@ async function readHttpErrorMessage(res: Response): Promise<string> {
     if (j.error && j.details) return `${j.error}: ${j.details}`;
     if (j.error) return j.error;
   } catch {
-
+    /* не JSON */
   }
   return t.slice(0, 400) || `HTTP ${res.status}`;
 }
@@ -83,7 +83,7 @@ function processSseLine(line: string, onDelta: (d: string) => void): void {
     const piece = json.choices?.[0]?.delta?.content;
     if (piece) onDelta(piece);
   } catch {
-    
+    /* пропускаем битые строки SSE */
   }
 }
 

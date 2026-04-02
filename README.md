@@ -1,73 +1,100 @@
-# React + TypeScript + Vite
+# Чат на Vite + React + Redux + GigaChat
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Учебный проект по дисциплине Основы фронтенда: несколько чатов, история сообщений, маршрутизация, локальное сохранение и ответы ассистента через **GigaChat API** (через dev-прокси).
 
-Currently, two official plugins are available:
+## Функциональность
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Чаты**: создание, переименование, удаление с подтверждением, автозаголовок по первому сообщению.
+- **Поиск** по названию и тексту последнего сообщения.
+- **Маршруты** `/` и `/chat/:id` (React Router); прямой заход по URL и refresh восстанавливают активный чат.
+- **Redux Toolkit**: состояние чатов, стриминг и полные ответы ассистента, индикатор загрузки.
+- **localStorage**: персистентность списка чатов и сообщений (с debounce при стриминге).
+- **GigaChat**: OAuth и `chat/completions` на отдельном Node-сервисе `src/api/gigachat-proxy`; в браузер ключ не попадает. Поддержка SSE со fallback на обычный JSON.
+- **Markdown** в ответах ассистента (`react-markdown`, `remark-gfm`) и подсветка кода (**Prism**).
 
-## React Compiler
+## Скрипты
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Команда | Назначение |
+|--------|------------|
+| `npm run dev` | Только Vite (без прокси GigaChat запросы к `/api/gigachat` не дойдут). |
+| `npm run gigachat-proxy` | Поднять прокси на `127.0.0.1:8787` (или `GIGACHAT_PROXY_PORT`). |
+| `npm run dev:full` | Прокси + Vite одновременно. |
+| `npm run build` | `tsc` + production-сборка. |
+| `npm run lint` | ESLint. |
 
-## Expanding the ESLint configuration
+## Настройка прокси GigaChat
+Скопируйте `.env.example` в `.env`, задайте `GIGACHAT_AUTHORIZATION_KEY`. При ошибках TLS к серверам Сбера — `GIGACHAT_INSECURE_SSL=true` (только для разработки).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Диаграмма компонентов
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+```mermaid
+flowchart TB
+  subgraph Entry["Точка входа"]
+    main["main.tsx\n Provider + BrowserRouter"]
+  end
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+  subgraph Routing["Маршрутизация"]
+    App["App.tsx\n Routes"]
+    main --> App
+    App --> AppLayout
+  end
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+  subgraph Layout["Компоновка"]
+    AppLayout["AppLayout\nSidebar + Outlet"]
+    AppLayout --> Sidebar
+    AppLayout --> ChatWindow
+  end
+
+  subgraph SidebarUI["Боковая панель"]
+    Sidebar["Sidebar"]
+    NewChat["NewChatButton"]
+    Search["SearchInput"]
+    ChatList["ChatList\n ChatItem"]
+    Modals["Rename / Delete\n модалки"]
+    Sidebar --> NewChat
+    Sidebar --> Search
+    Sidebar --> ChatList
+    ChatList --> Modals
+  end
+
+  subgraph ChatUI["Окно чата"]
+    ChatWindow["ChatWindow\n useChatRouteSync"]
+    MsgList["MessageList\n AssistantMarkdown"]
+    Input["InputArea"]
+    Settings["SettingsPanel"]
+    ChatWindow --> MsgList
+    ChatWindow --> Input
+    ChatWindow --> Settings
+  end
+
+  subgraph State["Состояние"]
+    Store["Redux\n chatSlice"]
+    Persist["chatPersistence"]
+    Store --> Persist
+  end
+
+  Sidebar --> Store
+  ChatWindow --> Store
+  ChatWindow --> GigaClient["gigachatClient"]
+
+  subgraph DevInfra["Разработка"]
+    Vite["Vite proxy\n /api/gigachat"]
+    Proxy["gigachat-proxy\n cli.ts"]
+    GigaClient --> Vite
+    Vite --> Proxy
+  end
+
+  subgraph External["Сбер"]
+    Sber["GigaChat API"]
+    Proxy --> Sber
+  end
+
+  subgraph Storage["Браузер"]
+    LS["localStorage"]
+    Persist --> LS
+  end
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Технологический стек
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+React 19, TypeScript, Vite 7, Redux Toolkit, React Router 7, react-markdown, remark-gfm, Prism, undici (в прокси).

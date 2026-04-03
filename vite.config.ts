@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   }
 
-  const proxyPort = env.GIGACHAT_PROXY_PORT || '8787';
+  const proxyPort = env.GIGACHAT_PROXY_PORT || '8000';
 
   return {
     plugins: [react()],

@@ -165,4 +165,7 @@ export const {
   renameChat,
 } = chatSlice.actions;
 
+/** Для `preloadedState` в store при отсутствии данных в localStorage */
+export const chatInitialState: ChatState = initialState;
+
 export default chatSlice.reducer;

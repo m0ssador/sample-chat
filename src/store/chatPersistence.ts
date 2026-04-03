@@ -1,4 +1,10 @@
 import type { Middleware } from '@reduxjs/toolkit';
+import {
+  loginSuccess,
+  logout,
+  AUTH_SESSION_KEY,
+  type AuthState,
+} from './authSlice';
 import type { Chat, ChatState, Message } from './chatTypes';
 
 const STORAGE_KEY = 'ts-react-vite-chat-state-v1';
@@ -119,9 +125,16 @@ function clearStreamPersistTimer(): void {
 
 export const chatPersistenceMiddleware: Middleware<
   object,
-  { chat: ChatState }
+  { chat: ChatState; auth: AuthState }
 > = (store) => (next) => (action) => {
   const result = next(action);
+
+  if (loginSuccess.match(action)) {
+    sessionStorage.setItem(AUTH_SESSION_KEY, '1');
+  }
+  if (logout.match(action)) {
+    sessionStorage.removeItem(AUTH_SESSION_KEY);
+  }
 
   if (
     typeof action !== 'object' ||

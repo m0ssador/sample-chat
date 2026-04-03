@@ -1,13 +1,23 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/Layout/AppLayout';
 import ChatWindow from './components/ChatWindow/ChatWindow';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import LoginPage from './pages/LoginPage';
 import './index.css';
 
 function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/" element={<AppLayout />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<ChatWindow />} />
           <Route path="chat/:chatId" element={<ChatWindow />} />
         </Route>

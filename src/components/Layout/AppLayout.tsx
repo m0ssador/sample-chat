@@ -10,7 +10,7 @@ export interface AppLayoutOutletContext {
 
 function getInitialSidebarOpen(): boolean {
   if (typeof window === 'undefined') return true;
-  return !window.matchMedia('(max-width: 768px)').matches;
+  return !window.matchMedia('(max-width: 1024px)').matches;
 }
 
 const AppLayout: React.FC = () => {

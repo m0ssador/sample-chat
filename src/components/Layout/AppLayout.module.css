@@ -11,7 +11,7 @@
   min-width: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .layout {
     overflow: hidden;
   }
@@ -21,7 +21,7 @@
   display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .sidebarBackdrop {
     display: block;
     position: fixed;

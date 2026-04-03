@@ -211,7 +211,11 @@ const ChatWindow: React.FC = () => {
             onClick={onToggleSidebar}
             aria-label="Открыть или закрыть меню чатов"
           >
-            ☰
+            <span className={styles.burgerIcon} aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
           </button>
           <h3 title={title}>{title}</h3>
         </div>

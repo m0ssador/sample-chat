@@ -42,7 +42,7 @@
 }
 
 /* Мобильные: панель со списком чатов выезжает слева от края экрана */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .sidebar {
     position: fixed;
     top: 0;

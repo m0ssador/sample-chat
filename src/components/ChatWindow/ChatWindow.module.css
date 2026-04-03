@@ -33,8 +33,6 @@
   justify-content: center;
   background: none;
   border: 1px solid var(--color-border);
-  font-size: 20px;
-  line-height: 1;
   cursor: pointer;
   color: var(--color-text);
   min-width: 44px;
@@ -44,7 +42,24 @@
   touch-action: manipulation;
 }
 
-@media (max-width: 768px) {
+.burgerIcon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 20px;
+  height: 16px;
+}
+
+.burgerIcon span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+@media (max-width: 1024px) {
   .burgerButton {
     display: inline-flex;
   }

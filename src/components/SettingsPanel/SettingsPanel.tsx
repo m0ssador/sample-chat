@@ -1,9 +1,11 @@
+'use client';
+
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
 import styles from './SettingsPanel.module.css';
-import { useAppDispatch } from '../../store/hooks';
-import { logout } from '../../store/authSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { logout } from '@/store/authSlice';
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -12,12 +14,12 @@ interface SettingsPanelProps {
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onToggle }) => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleLogout = () => {
     dispatch(logout());
     onToggle();
-    navigate('/login', { replace: true });
+    router.replace('/login');
   };
 
   if (!isOpen) return null;

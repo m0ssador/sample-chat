@@ -1,5 +1,6 @@
+'use client';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
 import MessageList from './MessageList/MessageList';
 import InputArea from './InputArea';
 import SettingsPanel from '../SettingsPanel/SettingsPanel';
@@ -23,7 +24,7 @@ import {
   selectNextMessageId,
 } from '../../store/selectors';
 import type { Message } from '../../store/chatTypes';
-import type { AppLayoutOutletContext } from '../Layout/AppLayout';
+import { useSidebarToggle } from '@/context/SidebarToggleContext';
 import { useChatRouteSync } from '../../hooks/useChatRouteSync';
 import {
   messagesToGigaChatPayload,
@@ -41,7 +42,7 @@ function formatNowTime(): string {
 const ChatWindow: React.FC = () => {
   useChatRouteSync();
 
-  const { onToggleSidebar } = useOutletContext<AppLayoutOutletContext>();
+  const onToggleSidebar = useSidebarToggle();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const dispatch = useAppDispatch();

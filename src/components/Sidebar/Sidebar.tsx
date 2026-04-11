@@ -1,10 +1,12 @@
+'use client';
+
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import NewChatButton from './NewChatButton';
 import SearchInput from './SearchInput';
 import ChatList from './ChatList/ChatList';
-import { useAppDispatch, useAppStore } from '../../store/hooks';
-import { addChat } from '../../store/chatSlice';
+import { useAppDispatch, useAppStore } from '@/store/hooks';
+import { addChat } from '@/store/chatSlice';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -15,13 +17,13 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onNavigate }) => {
   const dispatch = useAppDispatch();
   const store = useAppStore();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleNewChat = () => {
     dispatch(addChat());
     const id = store.getState().chat.activeChatId;
     if (id != null) {
-      navigate(`/chat/${id}`);
+      router.push(`/chat/${id}`);
       onNavigate?.();
     }
   };

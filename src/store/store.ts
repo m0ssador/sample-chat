@@ -5,26 +5,43 @@ import {
   chatPersistenceMiddleware,
   loadPersistedChatState,
 } from './chatPersistence';
-const persistedChat = loadPersistedChatState();
+import type { ChatState } from './chatTypes';
 
-const authPreload = {
-  isAuthenticated:
-    typeof sessionStorage !== 'undefined' &&
-    sessionStorage.getItem(AUTH_SESSION_KEY) === '1',
+function readAuthPreload(): { isAuthenticated: boolean } {
+  return {
+    isAuthenticated:
+      typeof sessionStorage !== 'undefined' &&
+      sessionStorage.getItem(AUTH_SESSION_KEY) === '1',
+  };
+}
+
+export type CreateAppStoreOptions = {
+  /** Полное состояние чатов без чтения из localStorage (удобно для тестов). */
+  initialChat?: ChatState;
+  initialAuth?: { isAuthenticated: boolean };
 };
 
-export const store = configureStore({
-  reducer: {
-    chat: chatReducer,
-    auth: authReducer,
-  },
-  preloadedState: {
-    chat: persistedChat ?? chatInitialState,
-    auth: authPreload,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(chatPersistenceMiddleware),
-});
+/** Создаёт стор с актуальным `sessionStorage` / `localStorage`. */
+export function createAppStore(options?: CreateAppStoreOptions) {
+  const chatState =
+    options?.initialChat ?? loadPersistedChatState() ?? chatInitialState;
+  const authState = options?.initialAuth ?? readAuthPreload();
+
+  return configureStore({
+    reducer: {
+      chat: chatReducer,
+      auth: authReducer,
+    },
+    preloadedState: {
+      chat: chatState,
+      auth: authState,
+    },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().concat(chatPersistenceMiddleware),
+  });
+}
+
+export const store = createAppStore();
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

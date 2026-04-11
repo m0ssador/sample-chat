@@ -68,11 +68,6 @@ const Message: React.FC<MessageProps> = ({
   );
 
   const handleCopy = useCallback(async () => {
-    if (variant !== 'assistant') {
-      void navigator.clipboard.writeText(content);
-      return;
-    }
-
     try {
       await navigator.clipboard.writeText(content);
       setCopied(true);
@@ -86,7 +81,7 @@ const Message: React.FC<MessageProps> = ({
     } catch {
       setCopied(false);
     }
-  }, [variant, content]);
+  }, [content]);
 
   const showCopyFeedback = variant === 'assistant' && copied;
   const wrapperClass = [
@@ -99,26 +94,30 @@ const Message: React.FC<MessageProps> = ({
 
   return (
     <div className={wrapperClass}>
-      <div className={styles.copyRow}>
-        <button
-          type="button"
-          className={styles.copyButton}
-          onClick={handleCopy}
-          aria-label={
-            showCopyFeedback ? 'Текст скопирован в буфер обмена' : 'Копировать текст сообщения'
-          }
-          title={showCopyFeedback ? 'Скопировано' : 'Копировать'}
-        >
-          {showCopyFeedback ? (
-            <>
-              <CheckIcon />
-              <span className={styles.copiedLabel}>Скопировано</span>
-            </>
-          ) : (
-            <CopyIcon />
-          )}
-        </button>
-      </div>
+      {variant === 'assistant' && (
+        <div className={styles.copyRow}>
+          <button
+            type="button"
+            className={styles.copyButton}
+            onClick={handleCopy}
+            aria-label={
+              showCopyFeedback
+                ? 'Текст скопирован в буфер обмена'
+                : 'Копировать текст сообщения'
+            }
+            title={showCopyFeedback ? 'Скопировано' : 'Копировать'}
+          >
+            {showCopyFeedback ? (
+              <>
+                <CheckIcon />
+                <span className={styles.copiedLabel}>Скопировано</span>
+              </>
+            ) : (
+              <CopyIcon />
+            )}
+          </button>
+        </div>
+      )}
       <div className={`${styles.message} ${styles[variant]}`}>
         {variant === 'assistant' && <div className={styles.avatar}>G</div>}
         <div className={styles.content}>

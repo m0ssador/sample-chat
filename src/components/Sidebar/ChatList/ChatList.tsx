@@ -1,17 +1,19 @@
+'use client';
+
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { usePathname, useRouter } from 'next/navigation';
 import ChatItem from './ChatItem';
 import RenameChatModal from '../RenameChatModal';
 import DeleteChatModal from '../DeleteChatModal';
 import styles from './ChatList.module.css';
-import { useAppDispatch, useAppSelector, useAppStore } from '../../../store/hooks';
-import { renameChat, deleteChat } from '../../../store/chatSlice';
+import { useAppDispatch, useAppSelector, useAppStore } from '@/store/hooks';
+import { renameChat, deleteChat } from '@/store/chatSlice';
 import {
   selectActiveChatId,
   selectChats,
   selectFilteredChats,
   selectSearchQuery,
-} from '../../../store/selectors';
+} from '@/store/selectors';
 
 interface ChatListProps {
   onNavigate?: () => void;
@@ -24,8 +26,8 @@ const ChatList: React.FC<ChatListProps> = ({ onNavigate }) => {
   const activeChatId = useAppSelector(selectActiveChatId);
   const dispatch = useAppDispatch();
   const store = useAppStore();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const [renameTarget, setRenameTarget] = useState<{
     id: number;
@@ -37,21 +39,21 @@ const ChatList: React.FC<ChatListProps> = ({ onNavigate }) => {
   } | null>(null);
 
   const handleSelectChat = (id: number) => {
-    navigate(`/chat/${id}`);
+    router.push(`/chat/${id}`);
     onNavigate?.();
   };
 
   const handleConfirmDelete = (deletedId: number) => {
-    const onDeletedChatPage = location.pathname === `/chat/${deletedId}`;
+    const onDeletedChatPage = pathname === `/chat/${deletedId}`;
     dispatch(deleteChat(deletedId));
     if (onDeletedChatPage) {
       const { chats: nextChats, activeChatId: nextActive } = store.getState().chat;
       if (nextChats.length === 0) {
-        navigate('/', { replace: true });
+        router.replace('/');
       } else if (nextActive != null) {
-        navigate(`/chat/${nextActive}`, { replace: true });
+        router.replace(`/chat/${nextActive}`);
       } else {
-        navigate('/', { replace: true });
+        router.replace('/');
       }
     }
     onNavigate?.();

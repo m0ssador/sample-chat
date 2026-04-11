@@ -1,22 +1,23 @@
 import { useEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { setActiveChatId } from '../store/chatSlice';
-import { selectChats } from '../store/selectors';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setActiveChatId } from '@/store/chatSlice';
+import { selectChats } from '@/store/selectors';
 
 /**
  * Синхронизирует Redux (activeChatId) с маршрутом: `/` — нет активного чата,
  * `/chat/:id` — чат с данным id или редирект на `/`, если id невалиден или чата нет.
  */
 export function useChatRouteSync(): void {
-  const { chatId: chatIdParam } = useParams<{ chatId: string }>();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const params = useParams<{ chatId?: string }>();
+  const pathname = usePathname();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const chats = useAppSelector(selectChats);
+  const chatIdParam = params.chatId;
 
   useEffect(() => {
-    if (location.pathname === '/') {
+    if (pathname === '/') {
       dispatch(setActiveChatId(null));
       return;
     }
@@ -27,16 +28,16 @@ export function useChatRouteSync(): void {
 
     const id = Number.parseInt(chatIdParam, 10);
     if (Number.isNaN(id)) {
-      navigate('/', { replace: true });
+      router.replace('/');
       return;
     }
 
     const exists = chats.some((c) => c.id === id);
     if (!exists) {
-      navigate('/', { replace: true });
+      router.replace('/');
       return;
     }
 
     dispatch(setActiveChatId(id));
-  }, [location.pathname, chatIdParam, chats, dispatch, navigate]);
+  }, [pathname, chatIdParam, chats, dispatch, router]);
 }

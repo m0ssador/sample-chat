@@ -42,6 +42,7 @@ jobs:
           else
             echo "base_path=/${name}" >> "$GITHUB_OUTPUT"
           fi
+      - run: npm install
       - run: npm ci
 
       # URL в .env в репозитории не попадает в Pages. Variables / Secrets → JSON → next.config читает файл при сборке.

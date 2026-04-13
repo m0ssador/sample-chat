@@ -1,3 +1,5 @@
+import { CHAT_COMPLETIONS_PATH } from '@/api/gigachat-proxy/paths';
+
 export type GigachatApiRole = 'user' | 'assistant';
 
 export interface GigachatApiMessage {
@@ -5,7 +7,11 @@ export interface GigachatApiMessage {
   content: string;
 }
 
-const CHAT_URL = '/api/gigachat/chat/completions';
+function gigaChatChatCompletionsUrl(): string {
+  const base = (process.env.GIGACHAT_PROXY_URL ?? '').trim().replace(/\/+$/, '');
+  if (!base) return CHAT_COMPLETIONS_PATH;
+  return `${base}${CHAT_COMPLETIONS_PATH}`;
+}
 
 async function readHttpErrorMessage(res: Response): Promise<string> {
   const t = await res.text();
@@ -27,7 +33,7 @@ export async function postGigaChatStream(
     onDelta: (delta: string) => void;
   },
 ): Promise<void> {
-  const res = await fetch(CHAT_URL, {
+  const res = await fetch(gigaChatChatCompletionsUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -91,7 +97,7 @@ export async function postGigaChatComplete(
   messages: GigachatApiMessage[],
   options: { signal?: AbortSignal; model?: string },
 ): Promise<string> {
-  const res = await fetch(CHAT_URL, {
+  const res = await fetch(gigaChatChatCompletionsUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

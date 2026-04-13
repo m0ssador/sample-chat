@@ -5,6 +5,10 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  env: {
+    GIGACHAT_PROXY_URL: process.env.GIGACHAT_PROXY_URL ?? '',
+  },
+};
 
 export default withBundleAnalyzer(nextConfig);

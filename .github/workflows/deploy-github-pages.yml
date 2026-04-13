@@ -40,7 +40,7 @@ jobs:
             echo "base_path=/${name}" >> "$GITHUB_OUTPUT"
           fi
 
-      - run: npm ci
+      - run: npm install
 
       # URL прокси в CI не читается из .env репозитория — вшиваем в бандл и кладём JSON для fallback в браузере.
       - name: gigachat-proxy.json для клиента Pages

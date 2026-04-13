@@ -20,6 +20,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Чтобы в job были доступны secrets/variables среды «github-pages», а не только репозитория.
+    environment:
+      name: github-pages
     steps:
       - uses: actions/checkout@v4
 
@@ -39,22 +42,30 @@ jobs:
           else
             echo "base_path=/${name}" >> "$GITHUB_OUTPUT"
           fi
+      - run: npm ci
 
-      - run: npm install
-
-      # URL прокси в CI не читается из .env репозитория — вшиваем в бандл и кладём JSON для fallback в браузере.
+      # URL в .env в репозитории не попадает в Pages. Variables / Secrets → JSON → next.config читает файл при сборке.
       - name: gigachat-proxy.json для клиента Pages
         env:
-          PROXY_URL: ${{ vars.GIGACHAT_PROXY_URL }}
+          GIGACHAT_PROXY_URL: ${{ vars.GIGACHAT_PROXY_URL || secrets.GIGACHAT_PROXY_URL }}
+        run: node scripts/write-gigachat-proxy-json.mjs
+
+      - name: Проверка URL прокси (иначе POST уйдёт на github.io и будет 405)
         run: |
-          mkdir -p public
-          node -e "require('fs').writeFileSync('public/gigachat-proxy.json', JSON.stringify({ url: process.env.PROXY_URL || '' }));"
+          node -e "
+            const { url } = require('./public/gigachat-proxy.json');
+            if (!String(url || '').trim()) {
+              console.error('Пустой URL: в репозитории Settings → Secrets and variables → Actions');
+              console.error('задайте Variable или Secret с именем GIGACHAT_PROXY_URL (базовый https://… прокси, без / в конце).');
+              process.exit(1);
+            }
+          "
 
       - run: npm run build:gh-pages
         env:
           BASE_PATH: ${{ steps.pages_base.outputs.base_path }}
-          GIGACHAT_PROXY_URL: ${{ vars.GIGACHAT_PROXY_URL }}
-          NEXT_PUBLIC_GIGACHAT_PROXY_URL: ${{ vars.GIGACHAT_PROXY_URL }}
+          GIGACHAT_PROXY_URL: ${{ vars.GIGACHAT_PROXY_URL || secrets.GIGACHAT_PROXY_URL }}
+          NEXT_PUBLIC_GIGACHAT_PROXY_URL: ${{ vars.GIGACHAT_PROXY_URL || secrets.GIGACHAT_PROXY_URL }}
 
       - run: touch out/.nojekyll
 

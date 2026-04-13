@@ -26,10 +26,6 @@
 
 ## Аудит бандла
 
-Запустите `npm run analyze` и откройте сгенерированный отчёт. Краткие выводы и рекомендации по Profiler — в **[docs/bundle-audit.md](docs/bundle-audit.md)**.
-
-Иллюстрация treemap (не заменяет актуальный отчёт после вашей сборки):
-
 ![Treemap аудита бандла (пример)](docs/bundle-analyzer-treemap.png)
 
 ## Настройка прокси GigaChat

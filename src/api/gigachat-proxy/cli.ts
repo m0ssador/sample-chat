@@ -26,8 +26,8 @@ const server = createServer((req, res) => {
   });
 });
 
-server.listen(port, '127.0.0.1', () => {
+server.listen(port, '0.0.0.0', () => {
   console.log(
-    `[gigachat-proxy] http://127.0.0.1:${port} (${CHAT_COMPLETIONS_PATH}, ${HEALTH_PATH})`,
+    `[gigachat-proxy] http://0.0.0.0:${port} (${CHAT_COMPLETIONS_PATH}, ${HEALTH_PATH})`,
   );
 });

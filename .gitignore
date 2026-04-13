@@ -13,6 +13,7 @@ dist-ssr
 .next
 out
 *.local
+package-lock.json
 
 # Секреты GigaChat и прочие локальные переменные (не коммитить)
 .env

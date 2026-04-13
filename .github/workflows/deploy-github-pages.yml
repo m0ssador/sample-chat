@@ -40,7 +40,7 @@ jobs:
             echo "base_path=/${name}" >> "$GITHUB_OUTPUT"
           fi
 
-      - run: npm ci
+      - run: npm install
 
       - run: npm run build:gh-pages
         env:

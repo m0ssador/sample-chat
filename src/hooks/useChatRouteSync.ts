@@ -14,7 +14,7 @@ export function useChatRouteSync(): void {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const chats = useAppSelector(selectChats);
-  const chatIdParam = params.chatId;
+  const chatIdParam = params?.chatId;
 
   useEffect(() => {
     if (pathname === '/') {

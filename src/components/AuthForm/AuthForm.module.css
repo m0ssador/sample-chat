@@ -15,7 +15,7 @@
   box-shadow: 0 2px 10px var(--color-shadow);
 }
 
-h2 {
+.form :global(h2) {
   text-align: center;
   margin-bottom: 20px;
   color: var(--color-text);
@@ -25,7 +25,7 @@ h2 {
   margin-bottom: 16px;
 }
 
-label {
+.form :global(label) {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
@@ -51,7 +51,7 @@ label {
   margin: 8px 0;
 }
 
-.radioLabel input {
+.radioLabel :global(input) {
   margin-right: 8px;
 }
 

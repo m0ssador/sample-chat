@@ -9,10 +9,12 @@ export function selectSearchQuery(state: RootState): string {
   return state.chat.searchQuery;
 }
 
-/** Чаты с учётом поиска по названию и тексту последнего сообщения */
-export function selectFilteredChats(state: RootState): Chat[] {
-  const q = state.chat.searchQuery.trim().toLowerCase();
-  const chats = state.chat.chats;
+/** Чаты с учётом поиска по названию и тексту последнего сообщения (чистая функция для `useMemo`). */
+export function filterChatsBySearchQuery(
+  chats: Chat[],
+  searchQuery: string,
+): Chat[] {
+  const q = searchQuery.trim().toLowerCase();
   if (!q) return chats;
   return chats.filter((c) => {
     if (c.name.toLowerCase().includes(q)) return true;
@@ -20,6 +22,11 @@ export function selectFilteredChats(state: RootState): Chat[] {
     if (last && last.content.toLowerCase().includes(q)) return true;
     return false;
   });
+}
+
+/** Чаты с учётом поиска по названию и тексту последнего сообщения */
+export function selectFilteredChats(state: RootState): Chat[] {
+  return filterChatsBySearchQuery(state.chat.chats, state.chat.searchQuery);
 }
 
 export function selectActiveChatId(state: RootState): number | null {

@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import type { Chat } from '../../../store/chatTypes';
 import styles from './ChatItem.module.css';
 
 interface ChatItemProps {
   chat: Chat;
   isActive: boolean;
-  onSelect: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
+  onSelect: (id: number) => void;
+  onEdit: (id: number) => void;
+  onDelete: (id: number) => void;
 }
 
 const ChatItem: React.FC<ChatItemProps> = ({
@@ -24,11 +24,11 @@ const ChatItem: React.FC<ChatItemProps> = ({
       role="button"
       tabIndex={0}
       className={`${styles.chatItem} ${isActive ? styles.active : ''}`}
-      onClick={onSelect}
+      onClick={() => onSelect(chat.id)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          onSelect();
+          onSelect(chat.id);
         }
       }}
       onMouseEnter={() => setShowActions(true)}
@@ -46,7 +46,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onEdit();
+              onEdit(chat.id);
             }}
             className={styles.editButton}
             aria-label={`Переименовать чат «${chat.name}»`}
@@ -57,7 +57,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onDelete();
+              onDelete(chat.id);
             }}
             className={styles.deleteButton}
             aria-label={`Удалить чат «${chat.name}»`}
@@ -70,4 +70,4 @@ const ChatItem: React.FC<ChatItemProps> = ({
   );
 };
 
-export default ChatItem;
+export default memo(ChatItem);

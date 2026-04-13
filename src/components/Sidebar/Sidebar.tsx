@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import NewChatButton from './NewChatButton';
 import SearchInput from './SearchInput';
@@ -19,14 +19,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onNavigate }) => {
   const store = useAppStore();
   const router = useRouter();
 
-  const handleNewChat = () => {
+  const handleNewChat = useCallback(() => {
     dispatch(addChat());
     const id = store.getState().chat.activeChatId;
     if (id != null) {
       router.push(`/chat/${id}`);
       onNavigate?.();
     }
-  };
+  }, [dispatch, onNavigate, router, store]);
 
   return (
     <aside className={`${styles.sidebar} ${isOpen ? styles.mobileOpen : ''}`}>

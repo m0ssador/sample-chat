@@ -1,6 +1,22 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import AssistantMarkdown from './AssistantMarkdown';
+import React, {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import styles from './Message.module.css';
+
+const AssistantMarkdown = lazy(() => import('./AssistantMarkdown'));
+
+function MarkdownFallback() {
+  return (
+    <div className={styles.markdownFallback} aria-hidden>
+      Загрузка разметки…
+    </div>
+  );
+}
 
 export interface MessageProps {
   id: number;
@@ -126,7 +142,9 @@ const Message: React.FC<MessageProps> = ({
             <span className={styles.timestamp}>{timestamp}</span>
           </div>
           {variant === 'assistant' ? (
-            <AssistantMarkdown content={content} />
+            <Suspense fallback={<MarkdownFallback />}>
+              <AssistantMarkdown content={content} />
+            </Suspense>
           ) : (
             <div className={styles.userPlain}>{content}</div>
           )}

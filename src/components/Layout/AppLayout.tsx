@@ -1,10 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
-import Sidebar from '../Sidebar/Sidebar';
+import React, { lazy, Suspense, useState } from 'react';
 import { SidebarToggleProvider } from '@/context/SidebarToggleContext';
 
 import styles from './AppLayout.module.css';
+
+const Sidebar = lazy(() => import('../Sidebar/Sidebar'));
+
+function SidebarFallback() {
+  return (
+    <div className={styles.sidebarFallback} aria-hidden>
+      Загрузка списка чатов…
+    </div>
+  );
+}
 
 function getInitialSidebarOpen(): boolean {
   if (typeof window === 'undefined') return true;
@@ -33,10 +42,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           tabIndex={isSidebarOpen ? 0 : -1}
           onClick={() => setIsSidebarOpen(false)}
         />
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onNavigate={() => setIsSidebarOpen(false)}
-        />
+        <Suspense fallback={<SidebarFallback />}>
+          <Sidebar
+            isOpen={isSidebarOpen}
+            onNavigate={() => setIsSidebarOpen(false)}
+          />
+        </Suspense>
         {children}
       </div>
     </SidebarToggleProvider>

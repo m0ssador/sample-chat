@@ -12,7 +12,7 @@ export default function LoginForm() {
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get('from') || '/';
+  const from = searchParams?.get('from') || '/';
 
   useEffect(() => {
     if (isAuthenticated) {

@@ -1,11 +1,6 @@
 import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
+import ClientShell from './ClientShell';
 import './globals.css';
-
-const ClientShell = dynamic(() => import('./ClientShell'), {
-  ssr: false,
-  loading: () => <div className="appRoot" aria-busy="true" />,
-});
 
 export const metadata: Metadata = {
   title: 'Чат GigaChat',

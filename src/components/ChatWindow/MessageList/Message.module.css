@@ -170,6 +170,12 @@
   word-break: break-word;
 }
 
+.markdownFallback {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 4px 0;
+}
+
 .markdown {
   min-width: 0;
   overflow-x: auto;

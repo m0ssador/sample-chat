@@ -1,7 +1,19 @@
 'use client';
 
-import ChatWindow from '@/components/ChatWindow/ChatWindow';
+import React, { lazy, Suspense } from 'react';
+import ChatRouteFallback from '@/components/ChatWindow/ChatRouteFallback';
+
+const ChatWindow = lazy(() =>
+  import(
+    /* webpackChunkName: "route-chatid-chatwindow" */
+    '@/components/ChatWindow/ChatWindow'
+  ),
+);
 
 export default function ChatPage() {
-  return <ChatWindow />;
+  return (
+    <Suspense fallback={<ChatRouteFallback />}>
+      <ChatWindow />
+    </Suspense>
+  );
 }

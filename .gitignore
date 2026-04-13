@@ -12,6 +12,7 @@ dist
 dist-ssr
 .next
 out
+.api-stash-for-pages-build
 *.local
 package-lock.json
 

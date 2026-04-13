@@ -71,6 +71,13 @@ export function createGigaChatProxyMiddleware(
     return tok;
   }
 
+  function setCors(res: ServerResponse): void {
+    const origin = (env.GIGACHAT_CORS_ORIGIN ?? '*').trim() || '*';
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+  }
+
   return function gigaChatProxy(
     req: IncomingMessage,
     res: ServerResponse,
@@ -78,7 +85,17 @@ export function createGigaChatProxyMiddleware(
   ): void {
     const pathOnly = (req.url ?? '/').split('?')[0] ?? '';
 
+    const isGigaPath =
+      pathOnly === HEALTH_PATH || pathOnly === CHAT_COMPLETIONS_PATH;
+    if (req.method === 'OPTIONS' && isGigaPath) {
+      setCors(res);
+      res.statusCode = 204;
+      res.end();
+      return;
+    }
+
     if (pathOnly === HEALTH_PATH && req.method === 'GET') {
+      setCors(res);
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       res.end(
@@ -98,6 +115,7 @@ export function createGigaChatProxyMiddleware(
 
     void (async () => {
       try {
+        setCors(res);
         const raw = await readRequestBody(req);
 
         let payload: {

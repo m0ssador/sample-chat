@@ -7,10 +7,54 @@ export interface GigachatApiMessage {
   content: string;
 }
 
-function gigaChatChatCompletionsUrl(): string {
-  const base = (process.env.GIGACHAT_PROXY_URL ?? '').trim().replace(/\/+$/, '');
-  if (!base) return CHAT_COMPLETIONS_PATH;
-  return `${base}${CHAT_COMPLETIONS_PATH}`;
+function proxyBaseFromBuildEnv(): string {
+  const raw =
+    process.env.NEXT_PUBLIC_GIGACHAT_PROXY_URL ??
+    process.env.GIGACHAT_PROXY_URL ??
+    '';
+  return raw.trim().replace(/\/+$/, '');
+}
+
+const pagesPathPrefix = (process.env.NEXT_PUBLIC_PAGES_BASE_PATH ?? '')
+  .trim()
+  .replace(/\/+$/, '');
+
+let runtimeProxyBasePromise: Promise<string> | null = null;
+
+/**
+ * На GitHub Pages в бандл не попадает .env локально — URL задают в Actions (vars) и/или файл public/gigachat-proxy.json.
+ */
+async function resolveProxyBase(): Promise<string> {
+  const fromEnv = proxyBaseFromBuildEnv();
+  if (fromEnv) return fromEnv;
+  if (typeof window === 'undefined') {
+    return '';
+  }
+  if (!runtimeProxyBasePromise) {
+    const jsonPath = `${pagesPathPrefix}/gigachat-proxy.json`;
+    runtimeProxyBasePromise = fetch(jsonPath.startsWith('/') ? jsonPath : `/${jsonPath}`, {
+      cache: 'no-store',
+    })
+      .then(async (res) => {
+        if (!res.ok) return '';
+        try {
+          const j = (await res.json()) as { url?: string };
+          return (j.url ?? '').trim().replace(/\/+$/, '');
+        } catch {
+          return '';
+        }
+      })
+      .catch(() => '');
+  }
+  return runtimeProxyBasePromise;
+}
+
+async function gigaChatChatCompletionsUrl(): Promise<string> {
+  const proxyBase = await resolveProxyBase();
+  if (proxyBase) {
+    return `${proxyBase}${CHAT_COMPLETIONS_PATH}`;
+  }
+  return `${pagesPathPrefix}${CHAT_COMPLETIONS_PATH}`;
 }
 
 async function readHttpErrorMessage(res: Response): Promise<string> {
@@ -33,7 +77,7 @@ export async function postGigaChatStream(
     onDelta: (delta: string) => void;
   },
 ): Promise<void> {
-  const res = await fetch(gigaChatChatCompletionsUrl(), {
+  const res = await fetch(await gigaChatChatCompletionsUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -97,7 +141,7 @@ export async function postGigaChatComplete(
   messages: GigachatApiMessage[],
   options: { signal?: AbortSignal; model?: string },
 ): Promise<string> {
-  const res = await fetch(gigaChatChatCompletionsUrl(), {
+  const res = await fetch(await gigaChatChatCompletionsUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -14,7 +14,9 @@ dist-ssr
 out
 .api-stash-for-pages-build
 *.local
-package-lock.json
+
+# Локальная имитация URL прокси для Pages (в CI файл создаётся заново)
+public/gigachat-proxy.json
 
 # Секреты GigaChat и прочие локальные переменные (не коммитить)
 .env

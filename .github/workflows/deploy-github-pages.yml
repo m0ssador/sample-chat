@@ -40,12 +40,21 @@ jobs:
             echo "base_path=/${name}" >> "$GITHUB_OUTPUT"
           fi
 
-      - run: npm install
+      - run: npm ci
+
+      # URL прокси в CI не читается из .env репозитория — вшиваем в бандл и кладём JSON для fallback в браузере.
+      - name: gigachat-proxy.json для клиента Pages
+        env:
+          PROXY_URL: ${{ vars.GIGACHAT_PROXY_URL }}
+        run: |
+          mkdir -p public
+          node -e "require('fs').writeFileSync('public/gigachat-proxy.json', JSON.stringify({ url: process.env.PROXY_URL || '' }));"
 
       - run: npm run build:gh-pages
         env:
           BASE_PATH: ${{ steps.pages_base.outputs.base_path }}
           GIGACHAT_PROXY_URL: ${{ vars.GIGACHAT_PROXY_URL }}
+          NEXT_PUBLIC_GIGACHAT_PROXY_URL: ${{ vars.GIGACHAT_PROXY_URL }}
 
       - run: touch out/.nojekyll
 

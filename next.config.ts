@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
   ...(basePath ? { basePath, assetPrefix: basePath } : {}),
   env: {
     GIGACHAT_PROXY_URL: process.env.GIGACHAT_PROXY_URL ?? '',
+    /** Дублируем в NEXT_PUBLIC_, иначе на статическом экспорте иногда не попадает в клиентский бандл. */
+    NEXT_PUBLIC_GIGACHAT_PROXY_URL:
+      process.env.NEXT_PUBLIC_GIGACHAT_PROXY_URL ?? process.env.GIGACHAT_PROXY_URL ?? '',
+    /** Для загрузки gigachat-proxy.json и относительного /api при деплое в подкаталог Pages. */
+    NEXT_PUBLIC_PAGES_BASE_PATH: basePath ?? '',
   },
 };
 

@@ -1,0 +1,65 @@
+# Статический экспорт Next.js в GitHub Pages (источник: GitHub Actions).
+# После первого запуска: Settings → Pages → Build and deployment → Source: GitHub Actions.
+
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Вычислить BASE_PATH для Pages
+        id: pages_base
+        shell: bash
+        run: |
+          name="${{ github.event.repository.name }}"
+          owner="${{ github.repository_owner }}"
+          if [ "$name" = "${owner}.github.io" ]; then
+            echo "base_path=" >> "$GITHUB_OUTPUT"
+          else
+            echo "base_path=/${name}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - run: npm ci
+
+      - run: npm run build:gh-pages
+        env:
+          BASE_PATH: ${{ steps.pages_base.outputs.base_path }}
+          GIGACHAT_PROXY_URL: ${{ vars.GIGACHAT_PROXY_URL }}
+
+      - run: touch out/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: out
+          include-hidden-files: true
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

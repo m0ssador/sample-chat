@@ -1,5 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import crypto from 'node:crypto';
+import {
+  accessControlAllowHeadersFromIncoming,
+  accessControlAllowOrigin,
+} from './corsUtils';
 import { isInsecureSslFlag } from './env';
 import { pumpWebStreamToResponse, readRequestBody } from './httpUtils';
 import { CHAT_COMPLETIONS_PATH, HEALTH_PATH } from './paths';
@@ -71,11 +75,19 @@ export function createGigaChatProxyMiddleware(
     return tok;
   }
 
-  function setCors(res: ServerResponse): void {
-    const origin = (env.GIGACHAT_CORS_ORIGIN ?? '*').trim() || '*';
-    res.setHeader('Access-Control-Allow-Origin', origin);
+  function setCors(req: IncomingMessage, res: ServerResponse): void {
+    const reqOrigin = (req.headers.origin ?? undefined) as string | undefined;
+    const allowOrigin = accessControlAllowOrigin(reqOrigin, env.GIGACHAT_CORS_ORIGIN);
+    res.setHeader('Access-Control-Allow-Origin', allowOrigin);
+    if (allowOrigin !== '*') {
+      res.setHeader('Vary', 'Origin');
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      accessControlAllowHeadersFromIncoming(req),
+    );
+    res.setHeader('Access-Control-Max-Age', '86400');
   }
 
   return function gigaChatProxy(
@@ -88,14 +100,14 @@ export function createGigaChatProxyMiddleware(
     const isGigaPath =
       pathOnly === HEALTH_PATH || pathOnly === CHAT_COMPLETIONS_PATH;
     if (req.method === 'OPTIONS' && isGigaPath) {
-      setCors(res);
+      setCors(req, res);
       res.statusCode = 204;
       res.end();
       return;
     }
 
     if (pathOnly === HEALTH_PATH && req.method === 'GET') {
-      setCors(res);
+      setCors(req, res);
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       res.end(
@@ -115,7 +127,7 @@ export function createGigaChatProxyMiddleware(
 
     void (async () => {
       try {
-        setCors(res);
+        setCors(req, res);
         const raw = await readRequestBody(req);
 
         let payload: {
@@ -127,6 +139,8 @@ export function createGigaChatProxyMiddleware(
           payload = JSON.parse(raw) as typeof payload;
         } catch {
           res.statusCode = 400;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.end('{}');
           return;
         }
 
@@ -193,6 +207,10 @@ export function createGigaChatProxyMiddleware(
           }
           res.setHeader('Cache-Control', 'no-cache');
           res.setHeader('X-Accel-Buffering', 'no');
+          res.setHeader(
+            'Access-Control-Expose-Headers',
+            'Content-Type, Cache-Control, X-Accel-Buffering',
+          );
           await pumpWebStreamToResponse(upstream.body, res);
           return;
         }
@@ -210,6 +228,7 @@ export function createGigaChatProxyMiddleware(
           e instanceof Error ? e.message : 'Ошибка прокси GigaChat';
         console.error('[gigachat-proxy]', e);
         if (!res.headersSent) {
+          setCors(req, res);
           res.statusCode = 503;
           res.setHeader('Content-Type', 'application/json; charset=utf-8');
           res.end(JSON.stringify({ error: message }));

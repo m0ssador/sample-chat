@@ -1,4 +1,8 @@
 import crypto from 'node:crypto';
+import {
+  accessControlAllowHeadersFromWeb,
+  accessControlAllowOrigin,
+} from '@/api/gigachat-proxy/corsUtils';
 import { mergeGigaChatEnv, isInsecureSslFlag } from '@/api/gigachat-proxy/env';
 import { createUpstreamFetch } from '@/api/gigachat-proxy/upstreamFetch';
 import {
@@ -63,6 +67,22 @@ async function obtainToken(
   return tok;
 }
 
+function buildCorsHeaders(request: Request, env: Record<string, string>): Headers {
+  const h = new Headers();
+  const allowOrigin = accessControlAllowOrigin(
+    request.headers.get('origin') ?? undefined,
+    env.GIGACHAT_CORS_ORIGIN,
+  );
+  h.set('Access-Control-Allow-Origin', allowOrigin);
+  if (allowOrigin !== '*') {
+    h.append('Vary', 'Origin');
+  }
+  h.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  h.set('Access-Control-Allow-Headers', accessControlAllowHeadersFromWeb(request));
+  h.set('Access-Control-Max-Age', '86400');
+  return h;
+}
+
 /**
  * Обработка запросов к /api/gigachat/* (Route Handler Next.js).
  */
@@ -77,17 +97,25 @@ export async function handleGigaChat(
 
   const upstreamFetch = createUpstreamFetch(env);
 
+  const isGigaPath =
+    pathname === HEALTH_PATH || pathname === CHAT_COMPLETIONS_PATH;
+  if (request.method === 'OPTIONS' && isGigaPath) {
+    return new Response(null, {
+      status: 204,
+      headers: buildCorsHeaders(request, env),
+    });
+  }
+
   if (pathname === HEALTH_PATH && request.method === 'GET') {
+    const headers = buildCorsHeaders(request, env);
+    headers.set('Content-Type', 'application/json; charset=utf-8');
     return new Response(
       JSON.stringify({
         ok: true,
         hasAuthorizationKey: Boolean(env.GIGACHAT_AUTHORIZATION_KEY?.trim()),
         insecureSsl: isInsecureSslFlag(env.GIGACHAT_INSECURE_SSL),
       }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json; charset=utf-8' },
-      },
+      { status: 200, headers },
     );
   }
 
@@ -105,7 +133,9 @@ export async function handleGigaChat(
     try {
       payload = JSON.parse(raw) as typeof payload;
     } catch {
-      return new Response(null, { status: 400 });
+      const headers = buildCorsHeaders(request, env);
+      headers.set('Content-Type', 'application/json; charset=utf-8');
+      return new Response('{}', { status: 400, headers });
     }
 
     const systemPrompt =
@@ -151,29 +181,32 @@ export async function handleGigaChat(
 
     if (!upstream.ok) {
       const errText = await upstream.text();
+      const headers = buildCorsHeaders(request, env);
+      headers.set('Content-Type', 'application/json; charset=utf-8');
       return new Response(
         JSON.stringify({
           error: `GigaChat HTTP ${upstream.status}`,
           details: errText.slice(0, 800),
         }),
-        {
-          status: upstream.status,
-          headers: { 'Content-Type': 'application/json; charset=utf-8' },
-        },
+        { status: upstream.status, headers },
       );
     }
 
     if (stream && upstream.body) {
-      const headers = new Headers();
+      const headers = buildCorsHeaders(request, env);
       const ct = upstream.headers.get('content-type');
       if (ct) headers.set('Content-Type', ct);
       headers.set('Cache-Control', 'no-cache');
       headers.set('X-Accel-Buffering', 'no');
+      headers.set(
+        'Access-Control-Expose-Headers',
+        'Content-Type, Cache-Control, X-Accel-Buffering',
+      );
       return new Response(upstream.body, { status: 200, headers });
     }
 
     const buf = await upstream.arrayBuffer();
-    const headers = new Headers();
+    const headers = buildCorsHeaders(request, env);
     headers.set(
       'Content-Type',
       upstream.headers.get('content-type') || 'application/json; charset=utf-8',
@@ -182,9 +215,11 @@ export async function handleGigaChat(
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Ошибка прокси GigaChat';
     console.error('[gigachat]', e);
+    const headers = buildCorsHeaders(request, env);
+    headers.set('Content-Type', 'application/json; charset=utf-8');
     return new Response(JSON.stringify({ error: message }), {
       status: 503,
-      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      headers,
     });
   }
 }
